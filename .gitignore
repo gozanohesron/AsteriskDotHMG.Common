@@ -9,6 +9,8 @@ appsettings.Development.json
 local.settings.json
 settings.Development.json
 
+src/app/
+
 # User-specific files
 *.rsuser
 *.suo
