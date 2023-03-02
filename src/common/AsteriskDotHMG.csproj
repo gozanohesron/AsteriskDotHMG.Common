@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<RootNamespace>AsteriskDotHMG</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageId>AsteriskDotHMG.Common</PackageId>
+		<Title>AsteriskDotHMG Common</Title>
+		<PackageTags>extension;reusability;</PackageTags>
+		<Version>1.1.1</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
+		<PackageReference Include="SendGrid" Version="9.28.1" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.15.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Common\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+</Project>
