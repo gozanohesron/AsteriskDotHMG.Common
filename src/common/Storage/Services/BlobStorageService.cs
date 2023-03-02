@@ -49,6 +49,12 @@ public class BlobStorageService : IBlobStorageService
         {
             BlobClient blob = GetBlob(blobInfo);
             await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+
+            if (file.Position != 0)
+            {
+                file.Position = 0;
+            }
+
             Response<BlobContentInfo> response = await blob.UploadAsync(file, options, cancellationToken);
             bool isSuccess = response.GetRawResponse().Status.Equals((int)HttpStatusCode.Created);
 
