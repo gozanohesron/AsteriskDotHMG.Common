@@ -1,6 +1,6 @@
 ﻿namespace AsteriskDotHMG.Storage.Models;
 
-public class BlobStorageOptions
+public class StorageOptions
 {
     public string ConnectionString { get; set; }
 }

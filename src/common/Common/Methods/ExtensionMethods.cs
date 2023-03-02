@@ -156,11 +156,6 @@ public static partial class StringExtensionMethods
         return input.ReplaceNullValue().ToLower() == valueToCheck.ToLower() ? replaceValue : input.ReplaceNullValue();
     }
 
-
-
-    
-    
-
     [GeneratedRegex("([A-Z])([A-Z]+|[a-z0-9]+)($|[A-Z]\\w*)")]
     private static partial Regex CamelCaseRegex();
 }

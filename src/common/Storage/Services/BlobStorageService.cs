@@ -1,22 +1,19 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace AsteriskDotHMG.Storage.Services;
+﻿namespace AsteriskDotHMG.Storage.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
-    private static BlobServiceClient _blobServiceClient;
-    private readonly BlobStorageOptions _blobStorageOptions;
+    private readonly StorageOptions _storageOptions;
 
-    public BlobStorageService(IOptions<BlobStorageOptions> blobStorageOptions)
+    public BlobStorageService(IOptions<StorageOptions> storageOptions)
     {
-        _blobStorageOptions = blobStorageOptions.Value;
+        _storageOptions = storageOptions.Value;
     }
 
     public async Task<string> DownloadContentAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken)
     {
         try
         {
-            BlobClient blob = GetBlob(blobInfo);
+            BlobClient blob = GetBlobClient(blobInfo);
             Response<AM.BlobDownloadResult> download = await blob.DownloadContentAsync(cancellationToken);
             string result = download.Value.Content.ToString();
             return result;
@@ -31,7 +28,7 @@ public class BlobStorageService : IBlobStorageService
     {
         try
         {
-            BlobClient blob = GetBlob(blobInfo);
+            BlobClient blob = GetBlobClient(blobInfo);
             Stream stream = await blob.OpenReadAsync(cancellationToken: cancellationToken);
             return stream;
         }
@@ -47,7 +44,7 @@ public class BlobStorageService : IBlobStorageService
 
         try
         {
-            BlobClient blob = GetBlob(blobInfo);
+            BlobClient blob = GetBlobClient(blobInfo);
             await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
 
             if (file.Position != 0)
@@ -80,7 +77,7 @@ public class BlobStorageService : IBlobStorageService
     {
         try
         {
-            BlobClient blob = GetBlob(blobInfo);
+            BlobClient blob = GetBlobClient(blobInfo);
             Azure.Response response = await blob.DeleteAsync(cancellationToken: cancellationToken);
             bool isSuccess = response.Status.Equals((int)HttpStatusCode.Accepted);
             return isSuccess;
@@ -92,13 +89,13 @@ public class BlobStorageService : IBlobStorageService
     }
 
     #region Private Methods
-    private BlobClient GetBlob(SM.BlobInformation blobInfo)
+    private BlobClient GetBlobClient(SM.BlobInformation blobInfo)
     {
         try
         {
-            InitClient();
+            BlobServiceClient blobServiceClient = GetServiceClient();
 
-            BlobContainerClient container = _blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
+            BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
 
             BlobClient blob = container.GetBlobClient(blobInfo.BlobPath);
             return blob;
@@ -109,9 +106,9 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
-    private void InitClient()
+    private BlobServiceClient GetServiceClient()
     {
-        _blobServiceClient = new(_blobStorageOptions.ConnectionString);
+        return new(_storageOptions.ConnectionString);
     }
     #endregion Private Methods
 }
