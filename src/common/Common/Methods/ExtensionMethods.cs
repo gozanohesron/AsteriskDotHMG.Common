@@ -387,4 +387,89 @@ public static partial class OperationExtensionMethods
         }
     }
 
+    public static void StartTrigger(this ILogger logger, string functionName, string correlationId, params object[] args)
+    {
+        string message = CreateMessage($"{functionName} - trigger started;", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_START, message, correlationId);
+    }
+
+    public static void SetTriggerError(this ILogger logger, string functionName, string message, Exception ex, string correlationId, params object[] args)
+    {
+        message = CreateMessage($"{functionName} - {message}; Error: {ex.Message}", args);
+
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_ERROR, message, correlationId, LogLevel.Error, ex);
+    }
+
+    public static void EndTrigger(this ILogger logger, string functionName, string correlationId, params object[] args)
+    {
+        string message = CreateMessage($"{functionName} - trigger completed;", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_END, message, correlationId);
+    }
+
+    public static void StartApi(this ILogger logger, string functionName, string apiAction, string correlationId, params object[] args)
+    {
+        string message = CreateMessage($"{functionName} - {apiAction} request started;", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_API_START, message, correlationId);
+    }
+
+    public static void EndApi(this ILogger logger, string functionName, string apiAction, string correlationId, params object[] args)
+    {
+        string message = CreateMessage($"{functionName} - {apiAction} request completed;", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_API_END, message, correlationId);
+    }
+
+    public static void SetTriggerSuccessResult(this ILogger logger, string functionName, string message, string correlationId, params object[] args)
+    {
+        message = CreateMessage($"{functionName} - {message};", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_RESULT, message, correlationId);
+    }
+
+    public static void SetTriggerErrorResult(this ILogger logger, string functionName, string message, Exception ex, string correlationId, params object[] args)
+    {
+        message = CreateMessage($"{functionName} - {message}; Error: {ex.Message}", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_RESULT, message, correlationId, LogLevel.Error, ex);
+    }
+
+    public static void SetTriggerWarningResult(this ILogger logger, string functionName, string message, string warningLabel, Exception ex, string correlationId, params object[] args)
+    {
+        message = CreateMessage($"{functionName} - {message}; ${warningLabel}: {ex.Message}", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_RESULT, message, correlationId, LogLevel.Warning);
+    }
+
+    public static void SetTriggerProcess(this ILogger logger, string functionName, string message, string correlationId, params object[] args)
+    {
+        message = CreateMessage($"{functionName} - {message};", args);
+        CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_PROCESS, message, correlationId);
+    }
+
+    private static void CreateImportLog(ILogger logger, string action, string message, string correlationId, LogLevel loglevel = LogLevel.Information, Exception exception = null)
+    {
+
+        string separator = message.EndsWith(";") ? " " : ", ";
+        string logMessage = $"{message}{separator}Correlation Id: {correlationId}";
+
+        logger.CreateLog(action, logMessage, loglevel, exception);
+    }
+
+    private static string CreateMessage(string message, params object[] args)
+    {
+        if (args != null && args.Any() && !message.EndsWith(";") && !message.Contains(','))
+        {
+            message += "; ";
+        }
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            object obj = args[i];
+
+            message += $"{obj}";
+
+            if (i != args.Length - 1)
+            {
+                message += ", ";
+            }
+        }
+
+        return message;
+    }
 }
