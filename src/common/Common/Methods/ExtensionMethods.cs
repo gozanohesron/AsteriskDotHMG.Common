@@ -68,16 +68,8 @@ public static partial class FileExtensionMethods
     }
 }
 
-public static partial class ExtensionMethods
+public static partial class StringExtensionMethods
 {
-
-
-    public static T Clone<T>(this T source)
-    {
-        string serialized = JsonConvert.SerializeObject(source);
-        return JsonConvert.DeserializeObject<T>(serialized);
-    }
-
     public static string ToCamelCase(this string input)
     {
         string[] words = input.Split(new[] { "_", " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -92,18 +84,6 @@ public static partial class ExtensionMethods
             .ToArray();
 
         return $"{leadWord}{string.Join(string.Empty, tailWords)}";
-    }
-
-
-
-    public static bool? GetBoolValue(this string input, bool allowNull = false)
-    {
-        if (allowNull && string.IsNullOrEmpty(input))
-        {
-            return null;
-        }
-
-        return !string.IsNullOrEmpty(input) && (input.ToLower() == "true" || input == "1");
     }
 
     public static int? GetIntValue(this string input, bool allowNull = false)
@@ -124,6 +104,16 @@ public static partial class ExtensionMethods
         }
 
         return string.IsNullOrEmpty(input) ? 0 : Convert.ToDouble(input);
+    }
+
+    public static bool? GetBoolValue(this string input, bool allowNull = false)
+    {
+        if (allowNull && string.IsNullOrEmpty(input))
+        {
+            return null;
+        }
+
+        return !string.IsNullOrEmpty(input) && (input.ToLower() == "true" || input == "1");
     }
 
     public static string GetStringValue(this string input, bool allowNull = false)
@@ -156,11 +146,6 @@ public static partial class ExtensionMethods
         return string.IsNullOrEmpty(input) ? string.Empty : input;
     }
 
-    public static bool IsDevelopment(this IWebHostEnvironment env)
-    {
-        return env.EnvironmentName == "Development" || env.EnvironmentName == "Local";
-    }
-
     public static string ReplaceIfNullOrEmpty(this string input, string replaceValue = "")
     {
         return string.IsNullOrEmpty(input) ? replaceValue : input;
@@ -173,74 +158,40 @@ public static partial class ExtensionMethods
 
 
 
-    public static void CreateLog(this ILogger logger, string action, string message, LogLevel logLevel = LogLevel.Information, Exception exception = null)
-    {
-        if (string.IsNullOrEmpty(action))
-        {
-            action = "[LOG]";
-        }
+    
+    
 
-        if (logLevel == LogLevel.Information)
-        {
-            logger.LogInformation("{action} {message}", action, message);
-        }
-        else if (logLevel == LogLevel.Warning)
-        {
-            logger.LogWarning("{action} {message}", action, message);
-        }
-        else if (logLevel == LogLevel.Error)
-        {
-            logger.LogError(exception, "{action} {message}", action, message);
-        }
-    }
+    [GeneratedRegex("([A-Z])([A-Z]+|[a-z0-9]+)($|[A-Z]\\w*)")]
+    private static partial Regex CamelCaseRegex();
+}
 
+public static partial class NumberExtensionMethods
+{
     public static int GetIterationCount(this int count, int size)
     {
         return (int)Math.Ceiling((double)count / size);
     }
+}
 
-    [GeneratedRegex("([A-Z])([A-Z]+|[a-z0-9]+)($|[A-Z]\\w*)")]
-    private static partial Regex CamelCaseRegex();
-
-    public static IQueryable<T> FilterQuery<T>(this IQueryable<T> query, Dictionary<string, (QueryFilterOperator Operator, object Value)> filterParams, QueryFilterCondition condition)
+public static partial class WebExtensionMethods
+{
+    public static bool IsDevelopment(this IWebHostEnvironment env)
     {
-        ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
-        Expression expression = null;
-        foreach (KeyValuePair<string, (QueryFilterOperator Operator, object Value)> kvp in filterParams)
-        {
-            Expression propertyExpression = Expression.Property(parameter, kvp.Key);
-            Expression valueExpression = Expression.Constant(kvp.Value.Value);
-            Expression binaryExpression = kvp.Value.Operator switch
-            {
-                QueryFilterOperator.Equal => Expression.Equal(propertyExpression, valueExpression),
-                QueryFilterOperator.NotEqual => Expression.NotEqual(propertyExpression, valueExpression),
-                QueryFilterOperator.Contains => Expression.Call(propertyExpression, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExpression),
-                QueryFilterOperator.StartsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("StartsWith", new[] { typeof(string) }), valueExpression),
-                QueryFilterOperator.EndsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("EndsWith", new[] { typeof(string) }), valueExpression),
-                _ => throw new ArgumentException("Invalid operator."),
-            };
-
-            if (expression == null)
-            {
-                expression = binaryExpression;
-            }
-            else
-            {
-                if (condition == QueryFilterCondition.Or)
-                {
-                    expression = Expression.OrElse(expression, binaryExpression);
-                }
-                else
-                {
-                    expression = Expression.AndAlso(expression, binaryExpression);
-                }
-            }
-        }
-
-        return query.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
+        return env.EnvironmentName == "Development" || env.EnvironmentName == "Local";
     }
+}
 
-    #region Exceptions
+public static partial class ObjectExtensionMethods
+{
+    public static T Clone<T>(this T source)
+    {
+        string serialized = JsonConvert.SerializeObject(source);
+        return JsonConvert.DeserializeObject<T>(serialized);
+    }
+}
+
+public static partial class ExceptionExtensionMethods
+{
     public static int GetStatusCode(this Exception exception) =>
         exception switch
         {
@@ -375,5 +326,70 @@ public static partial class ExtensionMethods
             CorrelationId = correlationId
         };
     }
-    #endregion Exceptions
+}
+
+public static partial class CollectionExtensionMethods
+{
+    public static IQueryable<T> FilterQuery<T>(this IQueryable<T> query, Dictionary<string, (QueryFilterOperator Operator, object Value)> filterParams, QueryFilterCondition condition)
+    {
+        ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
+        Expression expression = null;
+        foreach (KeyValuePair<string, (QueryFilterOperator Operator, object Value)> kvp in filterParams)
+        {
+            Expression propertyExpression = Expression.Property(parameter, kvp.Key);
+            Expression valueExpression = Expression.Constant(kvp.Value.Value);
+            Expression binaryExpression = kvp.Value.Operator switch
+            {
+                QueryFilterOperator.Equal => Expression.Equal(propertyExpression, valueExpression),
+                QueryFilterOperator.NotEqual => Expression.NotEqual(propertyExpression, valueExpression),
+                QueryFilterOperator.Contains => Expression.Call(propertyExpression, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExpression),
+                QueryFilterOperator.StartsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("StartsWith", new[] { typeof(string) }), valueExpression),
+                QueryFilterOperator.EndsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("EndsWith", new[] { typeof(string) }), valueExpression),
+                _ => throw new ArgumentException("Invalid operator."),
+            };
+
+            if (expression == null)
+            {
+                expression = binaryExpression;
+            }
+            else
+            {
+                if (condition == QueryFilterCondition.Or)
+                {
+                    expression = Expression.OrElse(expression, binaryExpression);
+                }
+                else
+                {
+                    expression = Expression.AndAlso(expression, binaryExpression);
+                }
+            }
+        }
+
+        return query.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
+    }
+}
+
+public static partial class OperationExtensionMethods
+{
+    public static void CreateLog(this ILogger logger, string action, string message, LogLevel logLevel = LogLevel.Information, Exception exception = null)
+    {
+        if (string.IsNullOrEmpty(action))
+        {
+            action = "[LOG]";
+        }
+
+        if (logLevel == LogLevel.Information)
+        {
+            logger.LogInformation("{action} {message}", action, message);
+        }
+        else if (logLevel == LogLevel.Warning)
+        {
+            logger.LogWarning("{action} {message}", action, message);
+        }
+        else if (logLevel == LogLevel.Error)
+        {
+            logger.LogError(exception, "{action} {message}", action, message);
+        }
+    }
+
 }

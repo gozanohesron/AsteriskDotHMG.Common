@@ -8,9 +8,16 @@
 		<PackageId>AsteriskDotHMG.Common</PackageId>
 		<Title>AsteriskDotHMG Common</Title>
 		<PackageTags>extension;reusability;</PackageTags>
-		<Version>1.1.1</Version>
+		<Version>1.2.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		
+		<PackageIcon>logo.png</PackageIcon>
+		<Description>Common reusable methods for .NET Core development</Description>
+		<Company>AsteriskDotHMG</Company>
+		<Authors>Hesron Gozano</Authors>
+		<Product>AsteriskDotHMG.Common</Product>
+		<PackageProjectUrl>https://github.com/gozanohesron/AsteriskDotHMG.Common</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/gozanohesron/AsteriskDotHMG.Common</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -29,6 +36,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="..\..\..\..\..\Files\Downloads\logo.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	  <None Include="..\..\README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
