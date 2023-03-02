@@ -1,6 +1,6 @@
 ﻿namespace AsteriskDotHMG.Common.Methods;
 
-public static partial class ExtensionMethods
+public static partial class EnumExtensionMethods
 {
     public static string GetDisplayName(this Enum enumValue)
     {
@@ -19,6 +19,58 @@ public static partial class ExtensionMethods
 
         return displayName;
     }
+
+    public static T ToEnum<T>(this string value) where T : struct, Enum
+    {
+        if (!Enum.TryParse<T>(value, true, out T result))
+        {
+            throw new ArgumentException($"Invalid value '{value}' for enum type {typeof(T).Name}");
+        }
+        return result;
+    }
+
+    public static bool IsValidEnum<T>(this string value) where T : struct, Enum
+    {
+        return !string.IsNullOrEmpty(value) && Enum.TryParse<T>(value, true, out T _);
+    }
+}
+
+public static partial class FileExtensionMethods
+{
+    public static bool IsExcelFile(this IFormFile file)
+    {
+        return file != null && file.ContentType == Constants.EPPLUS_EXCEL_CONTENT_TYPE;
+    }
+
+    public static bool IsExcelFile(this string input)
+    {
+        return input.ToLower().EndsWith(".xlsx");
+    }
+
+    public static bool IsJSONFile(this IFormFile file)
+    {
+        return file != null && file.ContentType == Constants.JSON_CONTENT_TYPE;
+    }
+
+    public static bool IsJSONFile(this string fileName)
+    {
+        return fileName.ToLower().EndsWith(".json");
+    }
+
+    public static bool IsXMLFile(this IFormFile file)
+    {
+        return file != null && (file.ContentType == Constants.XML_CONTENT_TYPE || file.ContentType == Constants.XML_TEXT_CONTENT_TYPE);
+    }
+
+    public static bool IsXMLFile(this string fileName)
+    {
+        return fileName.ToLower().EndsWith(".xml");
+    }
+}
+
+public static partial class ExtensionMethods
+{
+
 
     public static T Clone<T>(this T source)
     {
@@ -42,35 +94,7 @@ public static partial class ExtensionMethods
         return $"{leadWord}{string.Join(string.Empty, tailWords)}";
     }
 
-    public static bool IsExcelFile(this IFormFile file)
-    {
-        return file != null && file.ContentType == Constants.EPPLUS_EXCEL_CONTENT_TYPE;
-    }
 
-    public static bool IsExcelFile(this string input)
-    {
-        return input.ToLower().EndsWith(".xlsx");
-    }
-
-    public static bool IsJSONFile(this IFormFile file)
-    {
-        return file != null && file.ContentType == Constants.JSON_CONTENT_TYPE;
-    }
-
-    public static bool IsJSONFile(this string fileName)
-    {
-        return fileName.ToLower().EndsWith(".json");
-    }    
-
-    public static bool IsXMLFile(this IFormFile file)
-    {
-        return file != null && (file.ContentType == Constants.XML_CONTENT_TYPE || file.ContentType == Constants.XML_TEXT_CONTENT_TYPE);
-    }
-
-    public static bool IsXMLFile(this string fileName)
-    {
-        return fileName.ToLower().EndsWith(".xml");
-    }
 
     public static bool? GetBoolValue(this string input, bool allowNull = false)
     {
@@ -125,7 +149,7 @@ public static partial class ExtensionMethods
     public static Guid? GetGuidValue(this string input)
     {
         return string.IsNullOrEmpty(input) ? null : Guid.Parse(input);
-    }    
+    }
 
     public static string ReplaceNullValue(this string input)
     {
@@ -147,19 +171,7 @@ public static partial class ExtensionMethods
         return input.ReplaceNullValue().ToLower() == valueToCheck.ToLower() ? replaceValue : input.ReplaceNullValue();
     }
 
-    public static T ToEnum<T>(this string value) where T : struct, Enum
-    {
-        if (!Enum.TryParse<T>(value, true, out T result))
-        {
-            throw new ArgumentException($"Invalid value '{value}' for enum type {typeof(T).Name}");
-        }
-        return result;
-    }
 
-    public static bool IsValidEnum<T>(this string value) where T : struct, Enum
-    {
-        return !string.IsNullOrEmpty(value) && Enum.TryParse<T>(value, true, out T _);       
-    }
 
     public static void CreateLog(this ILogger logger, string action, string message, LogLevel logLevel = LogLevel.Information, Exception exception = null)
     {
@@ -227,4 +239,141 @@ public static partial class ExtensionMethods
 
         return query.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
     }
+
+    #region Exceptions
+    public static int GetStatusCode(this Exception exception) =>
+        exception switch
+        {
+            BadRequestException => StatusCodes.Status400BadRequest,
+            NotFoundException => StatusCodes.Status404NotFound,
+            VE => StatusCodes.Status422UnprocessableEntity,
+            _ => StatusCodes.Status500InternalServerError
+        };
+
+    public static string GetTitle(this Exception exception) =>
+        exception switch
+        {
+            AE applicationException => applicationException.Title,
+            _ => "Server Error"
+        };
+
+    public static List<ValidationError> GetErrors(this Exception exception)
+    {
+        List<ValidationError> errors = new();
+
+        IReadOnlyDictionary<string, string[]> dictionary = null;
+
+        if (exception is VE validationException)
+        {
+            if (validationException.ErrorsDictionary != null)
+            {
+                dictionary = validationException.ErrorsDictionary;
+            }
+            else if (validationException.Errors != null)
+            {
+                dictionary = validationException.Errors.AsReadOnly();
+            }
+        }
+
+        if (dictionary != null && dictionary.Any())
+        {
+            foreach (KeyValuePair<string, string[]> dic in dictionary)
+            {
+                //mapping of validation exception coming from the built-in Identity
+                List<KeyValuePair<string, string>> fieldMappings = new()
+                {
+                    new KeyValuePair<string, string>("ConcurrencyFailure", "Email"),
+                    new KeyValuePair<string, string>("DefaultError", "Email"),
+                    new KeyValuePair<string, string>("DuplicateEmail", "Email"),
+                    new KeyValuePair<string, string>("DuplicateRoleName", "RoleName"),
+                    new KeyValuePair<string, string>("DuplicateUserName", "Email"),
+                    new KeyValuePair<string, string>("InvalidEmail", "Email"),
+                    new KeyValuePair<string, string>("InvalidRoleName", "RoleName"),
+                    new KeyValuePair<string, string>("InvalidToken", "Email"),
+                    new KeyValuePair<string, string>("InvalidUserName", "Email"),
+                    new KeyValuePair<string, string>("LoginAlreadyAssociated", "Email"),
+                    new KeyValuePair<string, string>("PasswordMismatch", "Password"),
+                    new KeyValuePair<string, string>("PasswordRequiresDigit", "Password"),
+                    new KeyValuePair<string, string>("PasswordRequiresLower", "Password"),
+                    new KeyValuePair<string, string>("PasswordRequiresNonAlphanumeric", "Password"),
+                    new KeyValuePair<string, string>("PasswordRequiresUniqueChars", "Password"),
+                    new KeyValuePair<string, string>("PasswordRequiresUpper", "Password"),
+                    new KeyValuePair<string, string>("PasswordTooShort", "Password"),
+                    new KeyValuePair<string, string>("RecoveryCodeRedemptionFailed", "Email"),
+                    new KeyValuePair<string, string>("UserAlreadyHasPassword", "Email"),
+                    new KeyValuePair<string, string>("UserAlreadyInRole", "Email"),
+                    new KeyValuePair<string, string>("UserLockoutNotEnabled", "Email"),
+                    new KeyValuePair<string, string>("UserNotInRole", "Email")
+                };
+
+                string dicKey = dic.Key;
+                List<string> dicErrors = dic.Value.Select(e => ReplaceInValidationError(e, dic.Key)).ToList();
+                KeyValuePair<string, string> keyMap = fieldMappings.FirstOrDefault(e => e.Key == dicKey);
+
+                if (!keyMap.Equals(default(KeyValuePair<string, string>)))
+                {
+                    dicKey = keyMap.Value;
+                }
+
+                if (dicErrors.Any())
+                {
+                    ValidationError error = errors.FirstOrDefault(e => e.Field == dicKey);
+
+                    if (error == null)
+                    {
+                        errors.Add(new ValidationError()
+                        {
+                            Field = dicKey,
+                            Errors = dicErrors
+                        });
+                    }
+                    else
+                    {
+                        error.Errors.AddRange(dicErrors);
+                    }
+                }
+            }
+        }
+
+        return errors;
+    }
+
+    private static string ReplaceInValidationError(string input, string key)
+    {
+        return input.Replace($"'{key}'", key);
+    }
+
+    public static ValidationData GetValidationData(this Exception exception)
+    {
+        ValidationData response = new()
+        {
+            Title = exception.GetTitle(),
+            StatusCode = exception.GetStatusCode(),
+            Detail = exception.Message,
+            Errors = exception.GetErrors()
+        };
+
+        return response;
+    }
+
+    public static ErrorInfo CreateError(this Exception ex, string correlationId, object data = null)
+    {
+        return new ErrorInfo()
+        {
+            Message = ex.Message,
+            Data = data,
+            CorrelationId = correlationId
+        };
+    }
+
+    public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)
+    {
+        return new Models.ValidationResult()
+        {
+            Message = ex.Message,
+            Errors = ex.GetErrors(),
+            CorrelationId = correlationId
+        };
+    }
+    #endregion Exceptions
 }
