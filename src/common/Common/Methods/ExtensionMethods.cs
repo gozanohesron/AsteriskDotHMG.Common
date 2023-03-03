@@ -296,7 +296,7 @@ public static partial class ExceptionExtensionMethods
         return new(exception.GetTitle(), exception.GetStatusCode(), exception.Message, exception.GetErrors());
     }
 
-    public static ErrorInfo CreateError(this Exception ex, string correlationId, object data = null)
+    public static ErrorInfo<TModel> CreateError<TModel>(this Exception ex, string correlationId, TModel data)
     {
         return new(ex.Message, correlationId, data);
     }

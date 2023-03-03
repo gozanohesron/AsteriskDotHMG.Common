@@ -1,13 +1,13 @@
 ﻿namespace AsteriskDotHMG.Common.Models;
 
-public class OperationResult
+public class OperationResult<TModel>
 {
     public OperationResult()
     {
 
     }
 
-    public OperationResult(bool isSuccess, string message, object data)
+    public OperationResult(bool isSuccess, string message, TModel data)
     {
         Data = data;
         IsSuccess = isSuccess;
@@ -19,7 +19,7 @@ public class OperationResult
         IsSuccess = isSuccess;
     }
 
-    public OperationResult(bool isSuccess, object data)
+    public OperationResult(bool isSuccess, TModel data)
     {
         IsSuccess = isSuccess;
         Data = data;
@@ -34,7 +34,7 @@ public class OperationResult
     private string _message = string.Empty;
 
     [SwaggerSchema("Extra data as further details")]
-    public object Data { get; set; }
+    public TModel Data { get; set; }
 
     [SwaggerSchema("Determine whether the operation is successful or not")]
     public bool IsSuccess { get; set; }
@@ -56,14 +56,14 @@ public class OperationResult
     }
 }
 
-public class BulkOperationResult
+public class BulkOperationResult<TModel>
 {
     public BulkOperationResult()
     {
 
     }
 
-    public BulkOperationResult(int recordsInserted, int recordsUpdated, string message, object data)
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, string message, TModel data)
     {
         RecordsInserted = recordsInserted;
         RecordsUpdated = recordsUpdated;
@@ -84,7 +84,7 @@ public class BulkOperationResult
         Message = message;
     }
 
-    public BulkOperationResult(int recordsInserted, int recordsUpdated, object data)
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, TModel data)
     {
         RecordsInserted = recordsInserted;
         RecordsUpdated = recordsUpdated;
@@ -100,7 +100,7 @@ public class BulkOperationResult
     public int RecordsUpdated { get; set; }
 
     [SwaggerSchema("Extra data as further details")]
-    public object Data { get; set; }
+    public TModel Data { get; set; }
 
     [SwaggerSchema("Operation message")]
     public string Message
