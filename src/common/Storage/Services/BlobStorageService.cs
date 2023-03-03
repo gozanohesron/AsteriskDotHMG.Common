@@ -9,7 +9,7 @@ public class BlobStorageService : IBlobStorageService
         _storageOptions = storageOptions.Value;
     }
 
-    public async Task<string> DownloadContentAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken)
+    public async Task<string> DownloadContentAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -24,7 +24,7 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
-    public async Task<Stream> OpenReadAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken)
+    public async Task<Stream> OpenReadAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -38,7 +38,7 @@ public class BlobStorageService : IBlobStorageService
         };
     }
 
-    public async Task<string> UploadFileAsync(SM.BlobInformation blobInfo, Stream file, BlobUploadOptions options, CancellationToken cancellationToken)
+    public async Task<string> UploadFileAsync(SM.BlobInformation blobInfo, Stream file, BlobUploadOptions options, CancellationToken cancellationToken = default)
     {
         string fileUrl = string.Empty;
 
@@ -68,12 +68,12 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
-    public async Task<string> UploadFileAsync(SM.BlobInformation blobInfo, Stream file, CancellationToken cancellationToken)
+    public async Task<string> UploadFileAsync(SM.BlobInformation blobInfo, Stream file, CancellationToken cancellationToken = default)
     {
         return await UploadFileAsync(blobInfo, file, new BlobUploadOptions(), cancellationToken);
     }
 
-    public async Task<bool> DeleteFileAsync(BlobInformation blobInfo, CancellationToken cancellationToken)
+    public async Task<bool> DeleteFileAsync(BlobInformation blobInfo, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -81,6 +81,26 @@ public class BlobStorageService : IBlobStorageService
             Azure.Response response = await blob.DeleteAsync(cancellationToken: cancellationToken);
             bool isSuccess = response.Status.Equals((int)HttpStatusCode.Accepted);
             return isSuccess;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteFileAsync(SM.BlobInformation blobInfo, bool skipIfNotExists = false, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            BlobClient blob = GetBlobClient(blobInfo);
+
+            if (await blob.ExistsAsync(cancellationToken))
+            {
+                return await DeleteFileAsync(blobInfo, cancellationToken);
+            }
+
+            return true;
+            
         }
         catch (Exception)
         {

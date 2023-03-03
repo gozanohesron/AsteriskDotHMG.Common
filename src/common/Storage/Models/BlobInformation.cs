@@ -2,6 +2,18 @@
 
 public class BlobInformation
 {
+    public BlobInformation()
+    {
+
+    }
+
+    public BlobInformation(string containerName, string directory, string fileName)
+    {
+        ContainerName = containerName;
+        Directory = directory;
+        FileName = fileName;
+    }
+
     public string ContainerName { get; set; }
 
     public string Directory { get; set; }

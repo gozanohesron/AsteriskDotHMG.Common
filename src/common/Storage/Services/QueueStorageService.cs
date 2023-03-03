@@ -12,7 +12,7 @@ public class QueueStorageService : IQueueStorageService
         _storageOptions = storageOptions.Value;
     }
 
-    public async Task<bool> AddMessageQueueAsync<T>(string queueName, T queueBody, CancellationToken cancellationToken)
+    public async Task<bool> AddMessageQueueAsync<T>(string queueName, T queueBody, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -40,7 +40,7 @@ public class QueueStorageService : IQueueStorageService
 
     #region Private Methods
 
-    private QueueClient GetQueueClient(string queueName, CancellationToken cancellationToken)
+    private QueueClient GetQueueClient(string queueName, CancellationToken cancellationToken = default)
     {
         QueueClient queueClient = new(_storageOptions.ConnectionString, queueName);
         queueClient.CreateIfNotExists(cancellationToken: cancellationToken);

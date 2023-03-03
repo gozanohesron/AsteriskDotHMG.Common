@@ -10,12 +10,12 @@ public class SendGridEmailService : IEmailService
         _options = options.Value;
     }
 
-    public Task<bool> SendEmailAsync(EmailInfo emailInfo, string recepient, CancellationToken cancellationToken)
+    public Task<bool> SendEmailAsync(EmailInfo emailInfo, string recepient, CancellationToken cancellationToken = default)
     {
         return SendEmailAsync(emailInfo, new List<string> { recepient }, cancellationToken);
     }
 
-    public async Task<bool> SendEmailAsync(EmailInfo emailInfo, List<string> recepients, CancellationToken cancellationToken)
+    public async Task<bool> SendEmailAsync(EmailInfo emailInfo, List<string> recepients, CancellationToken cancellationToken = default)
     {
         try
         {

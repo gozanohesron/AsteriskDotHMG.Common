@@ -2,6 +2,27 @@
 
 public class ValidationData
 {
+    public ValidationData()
+    {
+
+    }
+
+    public ValidationData(string title, int statusCode, string detail, List<ValidationError> errors)
+    {
+        Title = title;
+        StatusCode = statusCode;
+        Detail = detail;
+        Errors = errors;
+    }
+
+    public ValidationData(string title, int statusCode, string detail)
+    {
+        Title = title;
+        StatusCode = statusCode;
+        Detail = detail;
+        Errors = new();
+    }
+
     public string Title { get; set; }
 
     public int StatusCode { get; set; }
@@ -13,6 +34,17 @@ public class ValidationData
 
 public class ValidationError
 {
+    public ValidationError()
+    {
+
+    }
+
+    public ValidationError(string field, List<string> errors)
+    {
+        Field = field;
+        Errors = errors;
+    }
+
     [SwaggerRequired]
     [SwaggerSchema("Field that contains the error")]
     public string Field { get; set; }

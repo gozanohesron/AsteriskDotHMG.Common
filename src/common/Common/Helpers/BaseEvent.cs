@@ -2,6 +2,11 @@
 
 public class BaseEvent : INotification
 {
+    public BaseEvent()
+    {
+
+    }
+
     public BaseEvent(string eventName)
     {
         EventName = eventName;

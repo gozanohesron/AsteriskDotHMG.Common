@@ -2,9 +2,37 @@
 
 public class OperationResult
 {
+    public OperationResult()
+    {
+
+    }
+
+    public OperationResult(bool isSuccess, string message, object data)
+    {
+        Data = data;
+        IsSuccess = isSuccess;
+        Message = message;
+    }
+
+    public OperationResult(bool isSuccess)
+    {
+        IsSuccess = isSuccess;
+    }
+
+    public OperationResult(bool isSuccess, object data)
+    {
+        IsSuccess = isSuccess;
+        Data = data;
+    }
+
+    public OperationResult(bool isSuccess, string message)
+    {
+        IsSuccess = isSuccess;
+        Message = message;
+    }
+
     private string _message = string.Empty;
 
-    [SwaggerRequired]
     [SwaggerSchema("Extra data as further details")]
     public object Data { get; set; }
 
@@ -31,6 +59,38 @@ public class OperationResult
 
 public class BulkOperationResult
 {
+    public BulkOperationResult()
+    {
+
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, string message, object data)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+        Message = message;
+        Data = data;
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, string message)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+        Message = message;
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, object data)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+        Data = data;
+    }
 
     private string _message = string.Empty;
 

@@ -2,5 +2,5 @@
 
 public interface IQueueStorageService
 {
-    Task<bool> AddMessageQueueAsync<T>(string queueName, T queueBody, CancellationToken cancellationToken);
+    Task<bool> AddMessageQueueAsync<T>(string queueName, T queueBody, CancellationToken cancellationToken = default);
 }
