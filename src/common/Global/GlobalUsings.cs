@@ -17,6 +17,7 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.ModelBinding;
 global using Microsoft.Azure.Functions.Worker;
 global using Microsoft.Azure.Functions.Worker.Middleware;
 global using Microsoft.Extensions.Logging;
