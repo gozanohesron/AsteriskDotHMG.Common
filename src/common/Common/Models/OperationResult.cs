@@ -36,7 +36,6 @@ public class OperationResult
     [SwaggerSchema("Extra data as further details")]
     public object Data { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("Determine whether the operation is successful or not")]
     public bool IsSuccess { get; set; }
 
@@ -94,15 +93,12 @@ public class BulkOperationResult
 
     private string _message = string.Empty;
 
-    [SwaggerRequired]
     [SwaggerSchema("Number of records inserted")]
     public int RecordsInserted { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("Number of records updated")]
     public int RecordsUpdated { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("Extra data as further details")]
     public object Data { get; set; }
 

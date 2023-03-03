@@ -45,11 +45,9 @@ public class ValidationError
         Errors = errors;
     }
 
-    [SwaggerRequired]
     [SwaggerSchema("Field that contains the error")]
     public string Field { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("List of field errors")]
     public List<string> Errors { get; set; } = new();
 }
@@ -68,15 +66,12 @@ public class ValidationResult
         CorrelationId = correlationId;
     }
 
-    [SwaggerRequired]
     [SwaggerSchema("Validation message")]
     public string Message { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("List of field validations")]
     public List<ValidationError> Errors { get; set; } = new();
 
-    [SwaggerRequired]
     [SwaggerSchema("Correlation id for troubleshooting")]
     public string CorrelationId { get; set; }
 }

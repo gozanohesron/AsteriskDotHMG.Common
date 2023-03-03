@@ -17,11 +17,9 @@ public class ErrorInfo
     [SwaggerSchema("Extra data as further details")]
     public object Data { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("Error message")]
     public string Message { get; set; }
 
-    [SwaggerRequired]
     [SwaggerSchema("Correlation id for troubleshooting")]
     public string CorrelationId { get; set; }
 }
