@@ -54,3 +54,29 @@ public class ValidationError
     public List<string> Errors { get; set; } = new();
 }
 
+public class ValidationResult
+{
+    public ValidationResult()
+    {
+
+    }
+
+    public ValidationResult(List<ValidationError> errors, string message, string correlationId)
+    {
+        Errors = errors;
+        Message = message;
+        CorrelationId = correlationId;
+    }
+
+    [SwaggerRequired]
+    [SwaggerSchema("Validation message")]
+    public string Message { get; set; }
+
+    [SwaggerRequired]
+    [SwaggerSchema("List of field validations")]
+    public List<ValidationError> Errors { get; set; } = new();
+
+    [SwaggerRequired]
+    [SwaggerSchema("Correlation id for troubleshooting")]
+    public string CorrelationId { get; set; }
+}

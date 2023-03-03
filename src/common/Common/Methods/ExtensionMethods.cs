@@ -267,11 +267,7 @@ public static partial class ExceptionExtensionMethods
 
                     if (error == null)
                     {
-                        errors.Add(new ValidationError()
-                        {
-                            Field = dicKey,
-                            Errors = dicErrors
-                        });
+                        errors.Add(new(dicKey, dicErrors));
                     }
                     else
                     {
@@ -291,35 +287,17 @@ public static partial class ExceptionExtensionMethods
 
     public static ValidationData GetValidationData(this Exception exception)
     {
-        ValidationData response = new()
-        {
-            Title = exception.GetTitle(),
-            StatusCode = exception.GetStatusCode(),
-            Detail = exception.Message,
-            Errors = exception.GetErrors()
-        };
-
-        return response;
+        return new(exception.GetTitle(), exception.GetStatusCode(), exception.Message, exception.GetErrors());
     }
 
     public static ErrorInfo CreateError(this Exception ex, string correlationId, object data = null)
     {
-        return new ErrorInfo()
-        {
-            Message = ex.Message,
-            Data = data,
-            CorrelationId = correlationId
-        };
+        return new(ex.Message, correlationId, data);
     }
 
     public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)
     {
-        return new Models.ValidationResult()
-        {
-            Message = ex.Message,
-            Errors = ex.GetErrors(),
-            CorrelationId = correlationId
-        };
+        return new(ex.GetErrors(), ex.Message, correlationId);
     }
 }
 
