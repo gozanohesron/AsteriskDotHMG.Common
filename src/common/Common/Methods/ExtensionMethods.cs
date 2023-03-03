@@ -86,6 +86,12 @@ public static partial class StringExtensionMethods
         return $"{leadWord}{string.Join(string.Empty, tailWords)}";
     }
 
+    public static string ToTitleCase(this string input)
+    {
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+        return textInfo.ToTitleCase(input.ToLower());
+    }
     public static int? GetIntValue(this string input, bool allowNull = false)
     {
         if (allowNull && string.IsNullOrEmpty(input))

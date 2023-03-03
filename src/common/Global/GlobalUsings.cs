@@ -30,6 +30,7 @@ global using Swashbuckle.AspNetCore.SwaggerGen;
 global using System.Collections;
 global using System.ComponentModel.DataAnnotations;
 global using System.Diagnostics;
+global using System.Globalization;
 global using System.Linq.Expressions;
 global using System.Net;
 global using System.Reflection;
