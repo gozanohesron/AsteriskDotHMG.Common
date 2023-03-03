@@ -14,6 +14,12 @@ public class ErrorInfo<TModel>
         Data = data;
     }
 
+    public ErrorInfo(string message, string correlationId)
+    {
+        Message = message;
+        CorrelationId = correlationId;
+    }
+
     [SwaggerSchema("Extra data as further details")]
     public TModel Data { get; set; }
 

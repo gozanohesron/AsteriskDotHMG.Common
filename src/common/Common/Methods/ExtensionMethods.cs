@@ -301,6 +301,11 @@ public static partial class ExceptionExtensionMethods
         return new(ex.Message, correlationId, data);
     }
 
+    public static ErrorInfo<TModel> CreateError<TModel>(this Exception ex, string correlationId)
+    {
+        return new(ex.Message, correlationId);
+    }
+
     public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)
     {
         return new(ex.GetErrors(), ex.Message, correlationId);
