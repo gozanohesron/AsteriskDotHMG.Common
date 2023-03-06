@@ -419,9 +419,9 @@ public static partial class OperationExtensionMethods
         CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_RESULT, message, correlationId, LogLevel.Error, ex);
     }
 
-    public static void SetTriggerWarningResult(this ILogger logger, string functionName, string message, string warningLabel, Exception ex, string correlationId, params object[] args)
+    public static void SetTriggerWarningResult(this ILogger logger, string functionName, string message, string correlationId, params object[] args)
     {
-        message = CreateMessage($"{functionName} - {message}; ${warningLabel}: {ex.Message}", args);
+        message = CreateMessage($"{functionName} - {message};", args);
         CreateImportLog(logger, Constants.LOGGING_ACTION_TRIGGER_RESULT, message, correlationId, LogLevel.Warning);
     }
 
