@@ -11,3 +11,10 @@ public class PagingResult<TModel>
     [SwaggerSchema("Current page records")]
     public List<TModel> Records { get; set; } = new List<TModel>();
 }
+
+public class PagingResult<TModel, TData>: PagingResult<TModel>
+{
+
+    [SwaggerSchema("Extra data for configuration")]
+    public TData Data { get; set; }
+}
