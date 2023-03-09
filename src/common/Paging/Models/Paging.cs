@@ -6,9 +6,9 @@ public class PagingParam
 
     public int Size { get; set; }
 
-    public string SearchColumn { get; set; }
+    public List<string> FilterColumns { get; set; } = new();
 
-    public object SearchValue { get; set; }
+    public List<object> FilterValues { get; set; } = new();
 
     public string SortDirection { get; set; }
 
