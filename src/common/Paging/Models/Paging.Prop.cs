@@ -395,16 +395,29 @@ public class PagingProp<TModel>
         }
     }
 
+    private class FilterColumnValuePair
+    {
+        public FilterColumnValuePair(string column, object value)
+        {
+            Column = column;
+            Value = value;
+        }
+
+        public string Column { get; set; }
+
+        public object Value { get; set; }
+    }
+
     private static Expression<Func<TModel, bool>> GetSearchExpression(List<string> filterColumns, List<object> filterValues, List<FilterProperty> filterProperties, FilterCondition filterCondition = FilterCondition.And)
     {
-        Dictionary<string, object> searchValues = new();
+        List<FilterColumnValuePair> searchValues = new();
 
         for (int i = 0; i < filterColumns.Count; i++)
         {
             string column = filterColumns[i];
             object value = filterValues[i];
 
-            searchValues.Add(column, value);
+            searchValues.Add(new(column, value));
         }
 
         if (searchValues == null || searchValues.Count == 0)
@@ -414,10 +427,11 @@ public class PagingProp<TModel>
 
         ParameterExpression parameter = Expression.Parameter(typeof(TModel), "x");
         BinaryExpression condition = null;
+        List<string> processedProperty = new();
 
         foreach (var kvp in searchValues)
         {
-            string searchColumn = kvp.Key;
+            string searchColumn = kvp.Column;
             object searchValue = kvp.Value;
 
             object value = GetPropertyValue(searchColumn, searchValue, "search");
@@ -426,6 +440,11 @@ public class PagingProp<TModel>
             if (!string.IsNullOrEmpty(column) && value != null)
             {
                 PropertyInfo propertyInfo = GetPropertyInfo(column);
+
+                if ((propertyInfo.PropertyType == typeof(DateTime) || propertyInfo.PropertyType == typeof(DateOnly)))
+                {
+                    value = Convert.ToDateTime(value).Date;
+                }
 
                 if (propertyInfo != null)
                 {
@@ -438,10 +457,14 @@ public class PagingProp<TModel>
                     FilterOperator firstOperator = FilterOperator.Equal;
                     FilterOperator? secondOperator = null;
 
-
                     if (filterProperties != null && filterProperties.Any())
                     {
                         FilterProperty filterPropery = filterProperties.Where(e => e.Name.ToLower() == column.ToLower()).FirstOrDefault();
+
+                        if (processedProperty.Contains(column))
+                        {
+                            filterPropery = filterProperties.Where(e => e.Name.ToLower() == column.ToLower()).LastOrDefault();
+                        }
 
                         if (filterPropery != null)
                         {
@@ -552,6 +575,8 @@ public class PagingProp<TModel>
                     }
                 }
             }
+
+            processedProperty.Add(column);
         }
 
         if (condition != null)
