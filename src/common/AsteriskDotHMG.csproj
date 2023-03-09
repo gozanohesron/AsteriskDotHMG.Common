@@ -24,8 +24,7 @@
 		<PackageReference Include="Azure.Storage.Common" Version="12.14.0" />
 		<PackageReference Include="Azure.Storage.Queues" Version="12.13.0" />
 		<PackageReference Include="MediatR" Version="12.0.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
 		<PackageReference Include="SendGrid" Version="9.28.1" />
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.15.0" />
