@@ -314,21 +314,21 @@ public static partial class ExceptionExtensionMethods
 
 public static partial class CollectionExtensionMethods
 {
-    public static IQueryable<T> FilterQuery<T>(this IQueryable<T> query, Dictionary<string, (QueryFilterOperator Operator, object Value)> filterParams, QueryFilterCondition condition)
+    public static IQueryable<T> FilterQuery<T>(this IQueryable<T> query, Dictionary<string, (FilterOperator Operator, object Value)> filterParams, FilterCondition condition)
     {
         ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
         Expression expression = null;
-        foreach (KeyValuePair<string, (QueryFilterOperator Operator, object Value)> kvp in filterParams)
+        foreach (KeyValuePair<string, (FilterOperator Operator, object Value)> kvp in filterParams)
         {
             Expression propertyExpression = Expression.Property(parameter, kvp.Key);
             Expression valueExpression = Expression.Constant(kvp.Value.Value);
             Expression binaryExpression = kvp.Value.Operator switch
             {
-                QueryFilterOperator.Equal => Expression.Equal(propertyExpression, valueExpression),
-                QueryFilterOperator.NotEqual => Expression.NotEqual(propertyExpression, valueExpression),
-                QueryFilterOperator.Contains => Expression.Call(propertyExpression, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExpression),
-                QueryFilterOperator.StartsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("StartsWith", new[] { typeof(string) }), valueExpression),
-                QueryFilterOperator.EndsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("EndsWith", new[] { typeof(string) }), valueExpression),
+                FilterOperator.Equal => Expression.Equal(propertyExpression, valueExpression),
+                FilterOperator.NotEqual => Expression.NotEqual(propertyExpression, valueExpression),
+                FilterOperator.Contains => Expression.Call(propertyExpression, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExpression),
+                FilterOperator.StartsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("StartsWith", new[] { typeof(string) }), valueExpression),
+                FilterOperator.EndsWith => Expression.Call(propertyExpression, typeof(string).GetMethod("EndsWith", new[] { typeof(string) }), valueExpression),
                 _ => throw new ArgumentException("Invalid operator."),
             };
 
@@ -338,7 +338,7 @@ public static partial class CollectionExtensionMethods
             }
             else
             {
-                if (condition == QueryFilterCondition.Or)
+                if (condition == FilterCondition.Or)
                 {
                     expression = Expression.OrElse(expression, binaryExpression);
                 }

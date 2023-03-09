@@ -1,4 +1,4 @@
-﻿namespace AsteriskDotHMG.Common.Models;
+﻿namespace AsteriskDotHMG.Paging.Models;
 
 public class PagingParam
 {

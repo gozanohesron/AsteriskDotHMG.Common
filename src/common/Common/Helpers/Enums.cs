@@ -15,18 +15,22 @@ public static class Enums
         Failure
     }
 
-    public enum QueryFilterCondition
+    public enum FilterCondition
     {
         Or,
         And
     }
 
-    public enum QueryFilterOperator
+    public enum FilterOperator
     {
-        StartsWith,
-        EndsWith,
         Equal,
         NotEqual,
-        Contains
+        Contains,
+        GreaterThan,
+        GreaterThanOrEqual,
+        LessThan,
+        LessThanOrEqual,
+        EndsWith,
+        StartsWith
     }
 }
