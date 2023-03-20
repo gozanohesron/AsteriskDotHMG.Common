@@ -108,6 +108,28 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
+    public async Task<string> GetBase64Data(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            Stream stream = await OpenReadAsync(blobInfo, cancellationToken);
+
+            if (stream != null)
+            {
+                using MemoryStream memoryStream = new();
+                await stream.CopyToAsync(memoryStream, cancellationToken);
+                string base64 = Convert.ToBase64String(memoryStream.ToArray());
+                return base64;
+            }
+
+            return string.Empty;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     #region Private Methods
     private BlobClient GetBlobClient(SM.BlobInformation blobInfo)
     {

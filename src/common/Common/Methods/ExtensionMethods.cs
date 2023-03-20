@@ -162,6 +162,23 @@ public static partial class StringExtensionMethods
         return input.ReplaceNullValue().ToLower() == valueToCheck.ToLower() ? replaceValue : input.ReplaceNullValue();
     }
 
+    public static string GetBase64Base(this string fileName)
+    {
+        if (!string.IsNullOrEmpty(fileName))
+        {
+            if (fileName.ToLower().EndsWith(".png"))
+            {
+                return "data:image/png;base64,";
+            }
+            else if (fileName.ToLower().EndsWith(".jpeg") || fileName.ToLower().EndsWith(".jpg"))
+            {
+                return "data:image/jpeg;base64,";
+            }
+        }
+
+        return string.Empty;
+    }
+
     [GeneratedRegex("([A-Z])([A-Z]+|[a-z0-9]+)($|[A-Z]\\w*)")]
     private static partial Regex CamelCaseRegex();
 }
