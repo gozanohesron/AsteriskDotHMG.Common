@@ -8,5 +8,5 @@ public interface IBlobStorageService
     Task<string> UploadFileAsync(SM.BlobInformation blobInfo, Stream file, CancellationToken cancellationToken = default);
     Task<bool> DeleteFileAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
     Task<bool> DeleteFileAsync(SM.BlobInformation blobInfo, bool skipIfNotExists = false, CancellationToken cancellationToken = default);
-    Task<string> GetBase64Data(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
+    Task<string> GetBase64Data(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
 }
