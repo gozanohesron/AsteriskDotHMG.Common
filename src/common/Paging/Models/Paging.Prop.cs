@@ -15,6 +15,18 @@ public class PagingProp<TModel>
     private static readonly string _date = typeof(DateOnly).FullName;
     private static readonly string _datetime = typeof(DateTime).FullName;
     private static readonly string _time = typeof(TimeOnly).FullName;
+    private static readonly string _boolNull = typeof(bool?).FullName;
+    private static readonly string _decimalNull = typeof(decimal?).FullName;
+    private static readonly string _intNull = typeof(int?).FullName;
+    private static readonly string _uintNull = typeof(uint?).FullName;
+    private static readonly string _longNull = typeof(long?).FullName;
+    private static readonly string _ulongNull = typeof(ulong?).FullName;
+    private static readonly string _charNull = typeof(char?).FullName;
+    private static readonly string _floatNull = typeof(float?).FullName;
+    private static readonly string _doubleNull = typeof(double?).FullName;
+    private static readonly string _dateNull = typeof(DateOnly?).FullName;
+    private static readonly string _datetimeNull = typeof(DateTime?).FullName;
+    private static readonly string _timeNull = typeof(TimeOnly?).FullName;
     private static readonly List<string> _validTypes = new()
     {
         _bool,
@@ -29,7 +41,19 @@ public class PagingProp<TModel>
         _double,
         _date,
         _datetime,
-        _time
+        _time,
+        _boolNull,
+        _decimalNull,
+        _intNull,
+        _uintNull,
+        _longNull,
+        _ulongNull,
+        _charNull,
+        _floatNull,
+        _doubleNull,
+        _dateNull,
+        _datetimeNull,
+        _timeNull
     };
 
     public PagingProp(
@@ -113,9 +137,9 @@ public class PagingProp<TModel>
     {
         PropertyInfo[] properties = typeof(TModel).GetProperties();
 
-        PropertyInfo propertyInfo = properties.FirstOrDefault(p => p.Name.ToLower() == propertyName.ToLower());
+        PropertyInfo nullablePropertyInfo = properties.FirstOrDefault(p => p.Name.ToLower() == propertyName.ToLower());
 
-        return propertyInfo;
+        return nullablePropertyInfo;
     }
 
     private static string GetProperty(string propertyName, string type, bool throwException = true)
@@ -160,16 +184,17 @@ public class PagingProp<TModel>
             {
                 try
                 {
-                    object convertedValue = Convert.ChangeType(value, propertyInfo.PropertyType);
+                    Type underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
+                    object convertedValue = Convert.ChangeType(value, underlyingType ?? propertyInfo.PropertyType);
                     return convertedValue;
                 }
                 catch
                 {
-                    throw new ServerException($"Invalid ${type} property value '{value}' for property '{propertyName}'");
+                    throw new ServerException($"Invalid {type} property value '{value}' for property '{propertyName}'");
                 }
             }
 
-            throw new ServerException($"Invalid ${type} property name '{propertyName}'");
+            throw new ServerException($"Invalid {type} property name '{propertyName}'");
         }
 
         return null;
@@ -273,6 +298,96 @@ public class PagingProp<TModel>
             FilterOperator.GreaterThanOrEqual,
             FilterOperator.LessThan,
             FilterOperator.LessThanOrEqual
+        }),
+        new(_boolNull, new() {
+            FilterOperator.Equal
+        }),
+        new(_decimalNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_intNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_uintNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_longNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_ulongNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_charNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.Contains,
+            FilterOperator.StartsWith,
+            FilterOperator.EndsWith
+        }),
+        new(_floatNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_doubleNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_dateNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_datetimeNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
+        }),
+        new(_timeNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual,
+            FilterOperator.GreaterThan,
+            FilterOperator.GreaterThanOrEqual,
+            FilterOperator.LessThan,
+            FilterOperator.LessThanOrEqual
         })
     };
 
@@ -315,7 +430,9 @@ public class PagingProp<TModel>
                                     //validate if the value is valid for the type
                                     try
                                     {
-                                        Convert.ChangeType(value, propertyType);
+                                        Type underlyingType = Nullable.GetUnderlyingType(propertyType);
+
+                                        Convert.ChangeType(value, underlyingType ?? propertyType);
                                     }
                                     catch (Exception)
                                     {
@@ -450,6 +567,70 @@ public class PagingProp<TModel>
                 {
                     MemberExpression property = Expression.Property(parameter, propertyInfo);
                     ConstantExpression constant = Expression.Constant(value);
+
+                    Type underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
+                    Expression coalescedProperty = null;
+
+                    if (underlyingType != null)
+                    {
+                        object coalescedConstant = 0.0;
+
+                        if (underlyingType.FullName == _bool)
+                        {
+                            coalescedConstant = false;
+                        }
+                        else if (underlyingType.FullName == _decimal)
+                        {
+                            coalescedConstant = 0M;
+                        }
+                        else if (underlyingType.FullName == _int)
+                        {
+                            coalescedConstant = 0;
+                        }
+                        else if (underlyingType.FullName == _uint)
+                        {
+                            coalescedConstant = 0U;
+                        }
+                        else if (underlyingType.FullName == _long)
+                        {
+                            coalescedConstant = 0L;
+                        }
+                        else if (underlyingType.FullName == _ulong)
+                        {
+                            coalescedConstant = 0UL;
+                        }
+                        else if (underlyingType.FullName == _char)
+                        {
+                            coalescedConstant = '\0';
+                        }
+                        else if (underlyingType.FullName == _string)
+                        {
+                            coalescedConstant = null;
+                        }
+                        else if (underlyingType.FullName == _float)
+                        {
+                            coalescedConstant = 0.0f;
+                        }
+                        else if (underlyingType.FullName == _double)
+                        {
+                            coalescedConstant = 0.0d;
+                        }
+                        else if (underlyingType.FullName == _date)
+                        {
+                            coalescedConstant = default(DateOnly);
+                        }
+                        else if (underlyingType.FullName == _datetime)
+                        {
+                            coalescedConstant = default(DateTime);
+                        }
+                        else if (underlyingType.FullName == _time)
+                        {
+                            coalescedConstant = default(TimeOnly);
+                        }
+
+                        coalescedProperty = Expression.Coalesce(property, Expression.Constant(coalescedConstant));
+                    }
+
                     BinaryExpression firstBinary = null;
                     BinaryExpression secondBinary = null;
                     BinaryExpression binary = null;
@@ -476,37 +657,107 @@ public class PagingProp<TModel>
                     switch (firstOperator)
                     {
                         case FilterOperator.Equal:
-                            firstBinary = Expression.Equal(property, constant);
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.Equal(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.Equal(property, constant);
+                            }
                             break;
                         case FilterOperator.NotEqual:
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.NotEqual(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.NotEqual(property, constant);
+                            }
                             firstBinary = Expression.NotEqual(property, constant);
                             break;
                         case FilterOperator.Contains:
-                            MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                            Expression containsExpression = Expression.Call(property, containsMethod, constant);
-                            firstBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                            if (underlyingType != null)
+                            {
+                                MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                                Expression containsExpression = Expression.Call(coalescedProperty, containsMethod, constant);
+                                firstBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                            }
+                            else
+                            {
+                                MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                                Expression containsExpression = Expression.Call(property, containsMethod, constant);
+                                firstBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                            }
                             break;
                         case FilterOperator.StartsWith:
-                            MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-                            Expression startsWithExpression = Expression.Call(property, startsWithMethod, constant);
-                            firstBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                            if (underlyingType != null)
+                            {
+                                MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+                                Expression startsWithExpression = Expression.Call(coalescedProperty, startsWithMethod, constant);
+                                firstBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                            }
+                            else
+                            {
+                                MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+                                Expression startsWithExpression = Expression.Call(property, startsWithMethod, constant);
+                                firstBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                            }
                             break;
                         case FilterOperator.EndsWith:
-                            MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
-                            Expression endsWithExpression = Expression.Call(property, endsWithMethod, constant);
-                            firstBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                            if (underlyingType != null)
+                            {
+                                MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
+                                Expression endsWithExpression = Expression.Call(coalescedProperty, endsWithMethod, constant);
+                                firstBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                            }
+                            else
+                            {
+                                MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
+                                Expression endsWithExpression = Expression.Call(property, endsWithMethod, constant);
+                                firstBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                            }
                             break;
                         case FilterOperator.GreaterThan:
-                            firstBinary = Expression.GreaterThan(property, constant);
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.GreaterThan(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.GreaterThan(property, constant);
+                            }
                             break;
                         case FilterOperator.LessThan:
-                            firstBinary = Expression.LessThan(property, constant);
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.LessThan(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.LessThan(property, constant);
+                            }
                             break;
                         case FilterOperator.GreaterThanOrEqual:
-                            firstBinary = Expression.GreaterThanOrEqual(property, constant);
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.GreaterThanOrEqual(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.GreaterThanOrEqual(property, constant);
+                            }
                             break;
                         case FilterOperator.LessThanOrEqual:
-                            firstBinary = Expression.LessThanOrEqual(property, constant);
+                            if (underlyingType != null)
+                            {
+                                firstBinary = Expression.LessThanOrEqual(coalescedProperty, constant);
+                            }
+                            else
+                            {
+                                firstBinary = Expression.LessThanOrEqual(property, constant);
+                            }
                             break;
                     }
 
@@ -516,37 +767,107 @@ public class PagingProp<TModel>
                         switch (secondOperator)
                         {
                             case FilterOperator.Equal:
-                                secondBinary = Expression.Equal(property, constant);
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.Equal(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.Equal(property, constant);
+                                }
                                 break;
                             case FilterOperator.NotEqual:
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.NotEqual(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.NotEqual(property, constant);
+                                }
                                 secondBinary = Expression.NotEqual(property, constant);
                                 break;
                             case FilterOperator.Contains:
-                                MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                                Expression containsExpression = Expression.Call(property, containsMethod, constant);
-                                secondBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                                if (underlyingType != null)
+                                {
+                                    MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                                    Expression containsExpression = Expression.Call(coalescedProperty, containsMethod, constant);
+                                    secondBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                                }
+                                else
+                                {
+                                    MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                                    Expression containsExpression = Expression.Call(property, containsMethod, constant);
+                                    secondBinary = Expression.Equal(containsExpression, Expression.Constant(true));
+                                }
                                 break;
                             case FilterOperator.StartsWith:
-                                MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
-                                Expression startsWithExpression = Expression.Call(property, startsWithMethod, constant);
-                                secondBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                                if (underlyingType != null)
+                                {
+                                    MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+                                    Expression startsWithExpression = Expression.Call(coalescedProperty, startsWithMethod, constant);
+                                    secondBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                                }
+                                else
+                                {
+                                    MethodInfo startsWithMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
+                                    Expression startsWithExpression = Expression.Call(property, startsWithMethod, constant);
+                                    secondBinary = Expression.Equal(startsWithExpression, Expression.Constant(true));
+                                }
                                 break;
                             case FilterOperator.EndsWith:
-                                MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
-                                Expression endsWithExpression = Expression.Call(property, endsWithMethod, constant);
-                                secondBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                                if (underlyingType != null)
+                                {
+                                    MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
+                                    Expression endsWithExpression = Expression.Call(coalescedProperty, endsWithMethod, constant);
+                                    secondBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                                }
+                                else
+                                {
+                                    MethodInfo endsWithMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
+                                    Expression endsWithExpression = Expression.Call(property, endsWithMethod, constant);
+                                    secondBinary = Expression.Equal(endsWithExpression, Expression.Constant(true));
+                                }
                                 break;
                             case FilterOperator.GreaterThan:
-                                secondBinary = Expression.GreaterThan(property, constant);
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.GreaterThan(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.GreaterThan(property, constant);
+                                }
                                 break;
                             case FilterOperator.LessThan:
-                                secondBinary = Expression.LessThan(property, constant);
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.LessThan(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.LessThan(property, constant);
+                                }
                                 break;
                             case FilterOperator.GreaterThanOrEqual:
-                                secondBinary = Expression.GreaterThanOrEqual(property, constant);
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.GreaterThanOrEqual(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.GreaterThanOrEqual(property, constant);
+                                }
                                 break;
                             case FilterOperator.LessThanOrEqual:
-                                secondBinary = Expression.LessThanOrEqual(property, constant);
+                                if (underlyingType != null)
+                                {
+                                    secondBinary = Expression.LessThanOrEqual(coalescedProperty, constant);
+                                }
+                                else
+                                {
+                                    secondBinary = Expression.LessThanOrEqual(property, constant);
+                                }
                                 break;
                         }
                     }
