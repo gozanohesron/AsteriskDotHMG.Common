@@ -325,7 +325,15 @@ public static partial class ExceptionExtensionMethods
 
     public static ErrorInfo CreateServerError(this Exception ex, string correlationId)
     {
-        return new ErrorInfo<object>("Internal Server Error", correlationId, ex);
+        object error = new
+        {
+            message = ex.Message,
+            type = ex.GetType().Name,
+            innerException = ex.InnerException,
+            stackTrace = ex.StackTrace
+        };
+
+        return new ErrorInfo<object>("Internal Server Error", correlationId, error);
     }
 
     public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)
