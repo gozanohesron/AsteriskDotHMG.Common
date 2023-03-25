@@ -318,9 +318,14 @@ public static partial class ExceptionExtensionMethods
         return new(ex.Message, correlationId, data);
     }
 
-    public static ErrorInfo<TModel> CreateError<TModel>(this Exception ex, string correlationId)
+    public static ErrorInfo CreateError(this Exception ex, string correlationId)
     {
         return new(ex.Message, correlationId);
+    }
+
+    public static ErrorInfo CreateServerError(this Exception ex, string correlationId)
+    {
+        return new ErrorInfo<object>("Internal Server Error", correlationId, ex);
     }
 
     public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)

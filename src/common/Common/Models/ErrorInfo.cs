@@ -1,17 +1,10 @@
 ﻿namespace AsteriskDotHMG.Common.Models;
 
-public class ErrorInfo<TModel>
+public class ErrorInfo
 {
     public ErrorInfo()
     {
 
-    }
-
-    public ErrorInfo(string message, string correlationId, TModel data)
-    {
-        Message = message;
-        CorrelationId = correlationId;
-        Data = data;
     }
 
     public ErrorInfo(string message, string correlationId)
@@ -20,14 +13,23 @@ public class ErrorInfo<TModel>
         CorrelationId = correlationId;
     }
 
-    [SwaggerSchema("Extra data as further details")]
-    public TModel Data { get; set; }
-
     [SwaggerSchema("Error message")]
     public string Message { get; set; }
 
     [SwaggerSchema("Correlation id for troubleshooting")]
     public string CorrelationId { get; set; }
+}
+public class ErrorInfo<TModel>: ErrorInfo
+{
+    public ErrorInfo(string message, string correlationId, TModel data)
+    {
+        Message = message;
+        CorrelationId = correlationId;
+        Data = data;
+    }
+
+    [SwaggerSchema("Extra data as further details")]
+    public TModel Data { get; set; }
 }
 
 public class TriggerError<TModel>
