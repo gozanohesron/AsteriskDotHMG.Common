@@ -4,6 +4,7 @@ global using AsteriskDotHMG.Common.Methods;
 global using AsteriskDotHMG.Common.Models;
 global using AsteriskDotHMG.Notification.Interfaces;
 global using AsteriskDotHMG.Notification.Models;
+global using AsteriskDotHMG.Paging.Helpers;
 global using AsteriskDotHMG.Storage.Interfaces;
 global using AsteriskDotHMG.Storage.Models;
 global using Azure;

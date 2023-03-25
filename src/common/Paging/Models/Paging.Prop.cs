@@ -123,7 +123,7 @@ public class PagingProp<TModel>
     {
         if (pageSize > maxSize)
         {
-            throw new ServerException($"You can only request at most {maxSize} objects in one request.");
+            throw new PaginationException($"You can only request at most {maxSize} objects in one request.");
         }
         else if (pageSize <= 0)
         {
@@ -155,7 +155,7 @@ public class PagingProp<TModel>
 
             if (throwException)
             {
-                throw new ServerException($"Invalid {type} property name '{propertyName}'");
+                throw new PaginationException($"Invalid {type} property name '{propertyName}'");
             }
         }
 
@@ -190,11 +190,11 @@ public class PagingProp<TModel>
                 }
                 catch
                 {
-                    throw new ServerException($"Invalid {type} property value '{value}' for property '{propertyName}'");
+                    throw new PaginationException($"Invalid {type} property value '{value}' for property '{propertyName}'");
                 }
             }
 
-            throw new ServerException($"Invalid {type} property name '{propertyName}'");
+            throw new PaginationException($"Invalid {type} property name '{propertyName}'");
         }
 
         return null;
@@ -507,7 +507,7 @@ public class PagingProp<TModel>
 
             if (!string.IsNullOrEmpty(error))
             {
-                throw new ArgumentException(error);
+                throw new PaginationException(error);
             }
         }
     }
