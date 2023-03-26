@@ -1,9 +1,9 @@
 ﻿namespace AsteriskDotHMG.Common.Helpers;
 
-public class ServerException : Exception
+public class ServerException : Exception, ICustomException
 {
     public HttpStatusCode StatusCode { get; }
-    public new object Data { get; }
+    public object ExceptionData { get; }
 
     public ServerException(string message,
         HttpStatusCode statuscode = HttpStatusCode.InternalServerError,
@@ -11,7 +11,7 @@ public class ServerException : Exception
         : base(message)
     {
         StatusCode = statuscode;
-        Data = data;
+        ExceptionData = data;
     }
 
     public ServerException(string message,

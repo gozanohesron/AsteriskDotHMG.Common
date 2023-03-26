@@ -320,12 +320,14 @@ public static partial class ExceptionExtensionMethods
 
     public static ErrorInfo CreateError(this Exception ex, string correlationId)
     {
-        if (ex.Data == null)
+        object exceptionData = ex.GetExceptionData();
+
+        if (exceptionData == null)
         {
             return new(ex.Message, correlationId);
         }
 
-        return new ErrorInfo<object>(ex.Message, correlationId, ex.Data);
+        return new ErrorInfo<object>(ex.Message, correlationId, exceptionData);
     }
 
     public static ErrorInfo CreateServerError(this Exception ex, string correlationId)
@@ -336,10 +338,20 @@ public static partial class ExceptionExtensionMethods
             type = ex.GetType().Name,
             innerException = ex.InnerException,
             stackTrace = ex.StackTrace,
-            data = ex.Data
+            data = ex.GetExceptionData()
         };
 
         return new ErrorInfo<object>("Internal Server Error", correlationId, error);
+    }
+
+    private static object GetExceptionData(this Exception ex)
+    {
+        if (ex is ICustomException customEx)
+        {
+            return customEx.ExceptionData;
+        }
+
+        return null;
     }
 
     public static Models.ValidationResult CreateValidationError(this Exception ex, string correlationId)
