@@ -1,6 +1,48 @@
-﻿namespace AsteriskDotHMG.Common.Models;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
 
-public class OperationResult<TModel>
+namespace AsteriskDotHMG.Common.Models;
+
+public class OperationResult
+{
+    public OperationResult()
+    {
+
+    }
+
+    public OperationResult(bool isSuccess)
+    {
+        IsSuccess = isSuccess;
+    }
+
+    public OperationResult(bool isSuccess, string message)
+    {
+        IsSuccess = isSuccess;
+        Message = message;
+    }
+
+    private string _message = string.Empty;
+
+    [SwaggerSchema("Determine whether the operation is successful or not")]
+    public bool IsSuccess { get; set; }
+
+    [SwaggerSchema("Operation message")]
+    public string Message
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_message))
+            {
+                return IsSuccess ? "Operation successful" : "Operation failed";
+            }
+
+            return _message;
+
+        }
+        set { _message = value; }
+    }
+}
+
+public class OperationResult<TModel>: OperationResult
 {
     public OperationResult()
     {
@@ -31,13 +73,38 @@ public class OperationResult<TModel>
         Message = message;
     }
 
-    private string _message = string.Empty;
-
     [SwaggerSchema("Extra data as further details")]
     public TModel Data { get; set; }
+}
 
-    [SwaggerSchema("Determine whether the operation is successful or not")]
-    public bool IsSuccess { get; set; }
+
+public class BulkOperationResult
+{
+    public BulkOperationResult()
+    {
+
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+    }
+
+    public BulkOperationResult(int recordsInserted, int recordsUpdated, string message)
+    {
+        RecordsInserted = recordsInserted;
+        RecordsUpdated = recordsUpdated;
+        Message = message;
+    }
+
+    private string _message = string.Empty;
+
+    [SwaggerSchema("Number of records inserted")]
+    public int RecordsInserted { get; set; }
+
+    [SwaggerSchema("Number of records updated")]
+    public int RecordsUpdated { get; set; }
 
     [SwaggerSchema("Operation message")]
     public string Message
@@ -46,7 +113,7 @@ public class OperationResult<TModel>
         {
             if (string.IsNullOrEmpty(_message))
             {
-                return IsSuccess ? "Operation successful" : "Operation failed";
+                return StaticMethods.CreateOperationMessage(RecordsInserted, RecordsUpdated);
             }
 
             return _message;
@@ -54,9 +121,13 @@ public class OperationResult<TModel>
         }
         set { _message = value; }
     }
+
+    [SwaggerSchema("Determine whether the operation is successful or not")]
+    public bool IsSuccess => RecordsInserted > 0 || RecordsUpdated > 0;
 }
 
-public class BulkOperationResult<TModel>
+
+public class BulkOperationResult<TModel> : BulkOperationResult
 {
     public BulkOperationResult()
     {
@@ -91,33 +162,6 @@ public class BulkOperationResult<TModel>
         Data = data;
     }
 
-    private string _message = string.Empty;
-
-    [SwaggerSchema("Number of records inserted")]
-    public int RecordsInserted { get; set; }
-
-    [SwaggerSchema("Number of records updated")]
-    public int RecordsUpdated { get; set; }
-
     [SwaggerSchema("Extra data as further details")]
     public TModel Data { get; set; }
-
-    [SwaggerSchema("Operation message")]
-    public string Message
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_message))
-            {
-                return StaticMethods.CreateOperationMessage(RecordsInserted, RecordsUpdated);
-            }
-
-            return _message;
-
-        }
-        set { _message = value; }
-    }
-
-    [SwaggerSchema("Determine whether the operation is successful or not")]
-    public bool IsSuccess => RecordsInserted > 0 || RecordsUpdated > 0;
 }
