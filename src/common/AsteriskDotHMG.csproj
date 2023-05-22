@@ -8,7 +8,7 @@
 		<PackageId>AsteriskDotHMG.Common</PackageId>
 		<Title>AsteriskDotHMG Common</Title>
 		<PackageTags>extension;reusability;</PackageTags>
-		<Version>1.6.7</Version>
+		<Version>1.7.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>logo.png</PackageIcon>
 		<Description>Common reusable methods for .NET Core development</Description>
