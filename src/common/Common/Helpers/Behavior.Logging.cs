@@ -44,9 +44,24 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                         {
                             if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
                             {
-                                IEnumerable collection = property.GetValue(request) as IEnumerable;
-                                int count = collection.Cast<object>().Count();
-                                values.Add(property.Name, $"List contains {count} record(s)");
+                                if (property.PropertyType.Name.StartsWith("List"))
+                                {
+                                    IEnumerable collection = property.GetValue(request) as IEnumerable;
+
+                                    if (collection != null)
+                                    {
+                                        int count = collection.Cast<object>().Count();
+                                        values.Add(property.Name, $"List contains {count} record(s)");
+                                    }
+                                    else
+                                    {
+                                        values.Add(property.Name, "Null");
+                                    }
+                                }
+                                else
+                                {
+                                    values.Add(property.Name, property.GetValue(request));
+                                }
                             }
                             else
                             {
@@ -68,7 +83,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             }
             catch (Exception ex)
             {
-                _logger.CreateLog(Constants.LOGGING_ACTION_GENERIC_ERROR, $"Could not serialize the request; Error: {ex.Message}, CorrelationId: {correlationId}", LogLevel.Error, ex);
+                _logger.CreateLog(Constants.LOGGING_ACTION_GENERIC_ERROR, $"Pipeline Logging Behavior; Error: {ex.Message}, CorrelationId: {correlationId}", LogLevel.Error, ex);
             }
             response = await next();
         }

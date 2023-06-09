@@ -28,6 +28,9 @@ public static class Constants
     public const string LOGGING_ACTION_TRIGGER_API_END = "[TRIGGER API END]";
     public const string LOGGING_ACTION_TRIGGER_API_ERROR = "[TRIGGER API ERROR]";
     public const string LOGGING_ACTION_THIRD_PARTY_API_ERROR = "[THIRD PARTY API ERROR]";
+    public const string LOGGING_ACTION_EVENT_START = "[EVENT START]";
+    public const string LOGGING_ACTION_EVENT_END = "[EVENT END]";
+    public const string LOGGING_ACTION_EVENT_ERROR = "[EVENT ERROR]";
 }
 
 public static class Messages
