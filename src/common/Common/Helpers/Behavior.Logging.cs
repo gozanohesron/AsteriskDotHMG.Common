@@ -26,59 +26,61 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             try
             {
+                Type requestType = request.GetType();
+                PropertyInfo[] properties = requestType.GetProperties();
+                Dictionary<string, object> values = new();
+                string requestData = string.Empty;
 
-                if (requestName == "AuthCommand")
+                foreach (PropertyInfo property in properties)
                 {
-                    _logger.CreateLog(Constants.LOGGING_ACTION_DATA, $"Handling User Login; Email: {request.GetType().GetProperties().Where(e => e.Name == "Email").FirstOrDefault().GetValue(request)}, CorrelationId: {correlationId}");
-                }
-                else
-                {
-                    Type requestType = request.GetType();
-                    PropertyInfo[] properties = requestType.GetProperties();
-
-                    if (properties.Any(e => e.PropertyType.Name.StartsWith("List")))
+                    if (!string.IsNullOrEmpty(requestData))
                     {
-                        Dictionary<string, object> values = new();
+                        requestData += ", ";
+                    }
 
-                        foreach (PropertyInfo property in properties)
-                        {
-                            if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
-                            {
-                                if (property.PropertyType.Name.StartsWith("List"))
-                                {
-                                    IEnumerable collection = property.GetValue(request) as IEnumerable;
+                    object value = property.GetValue(request);
+                    bool willHideValue = false;
 
-                                    if (collection != null)
-                                    {
-                                        int count = collection.Cast<object>().Count();
-                                        values.Add(property.Name, $"List contains {count} record(s)");
-                                    }
-                                    else
-                                    {
-                                        values.Add(property.Name, "Null");
-                                    }
-                                }
-                                else
-                                {
-                                    values.Add(property.Name, property.GetValue(request));
-                                }
-                            }
-                            else
-                            {
-                                values.Add(property.Name, property.GetValue(request));
-                            }
-                        }
+                    List<string> excludedProperties = new() { "password", "newpassword", "confirmpassword", "oldpassword" };
 
-                        string requestData = SJ.JsonSerializer.Serialize(values);
+                    if (excludedProperties.Contains(property.Name.ToLower()))
+                    {
+                        value = "<Sensitive information hidden>";
 
-                        _logger.CreateLog(Constants.LOGGING_ACTION_DATA, $"Processing data;  Request data: {requestData}, CorrelationId: {correlationId}");
                     }
                     else
                     {
-                        string requestData = SJ.JsonSerializer.Serialize(request);
+                        HideValueOnLoggerAttribute attribute = property.GetCustomAttribute<HideValueOnLoggerAttribute>();
+                        willHideValue = property.IsDefined(typeof(HideValueOnLoggerAttribute), false);
 
-                        _logger.CreateLog(Constants.LOGGING_ACTION_DATA, $"Processing data; Request data: {requestData}, CorrelationId: {correlationId}");
+                        if (willHideValue && !string.IsNullOrEmpty(attribute.Message))
+                        {
+                            value = $"<{attribute.Message}>";
+                        }
                     }
+
+                    if (!willHideValue && typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+                    {
+                        if (property.PropertyType.Name.StartsWith("List"))
+                        {
+                            if (property.GetValue(request) is IEnumerable collection)
+                            {
+                                int count = collection.Cast<object>().Count();
+                                value = $"<List containing {count} record{(count > 1 ? "s" : string.Empty)}>";
+                            }
+                            else
+                            {
+                                value = "null";
+                            }
+                        }
+                    }
+
+                    requestData += $"{property.Name}: {(value ??"null")}";
+                }
+
+                if (!string.IsNullOrEmpty(requestData))
+                {
+                    _logger.CreateLog(Constants.LOGGING_ACTION_DATA, $"Processing data; Request data: {requestData}, CorrelationId: {correlationId}");
                 }
             }
             catch (Exception ex)

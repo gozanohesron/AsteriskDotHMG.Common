@@ -46,4 +46,3 @@ global using AE = AsteriskDotHMG.Common.Helpers.ApplicationException;
 global using VE = AsteriskDotHMG.Common.Helpers.ValidationException;
 global using SM = AsteriskDotHMG.Storage.Models;
 global using AM = Azure.Storage.Blobs.Models;
-global using SJ = System.Text.Json;
