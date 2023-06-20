@@ -336,9 +336,14 @@ public static partial class ExceptionExtensionMethods
         {
             message = ex.Message,
             type = ex.GetType().Name,
-            innerException = ex.InnerException,
+            innerException = new
+            {
+                message = ex.InnerException?.Message,
+                source = ex.InnerException?.Source,
+                stackTrack = ex.InnerException?.StackTrace
+            },
             stackTrace = ex.StackTrace,
-            data = ex.GetExceptionData()
+            data = GetExceptionData(ex)
         };
 
         return new ErrorInfo<object>("Internal Server Error", correlationId, error);
