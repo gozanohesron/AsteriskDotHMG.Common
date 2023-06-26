@@ -25,7 +25,19 @@ public class SendGridEmailService : IEmailService
             EmailAddress from = new(_options.SenderEmail, _options.SenderName);
             List<EmailAddress> tos = recepients.Select(e => new EmailAddress(e)).ToList();
 
-            SendGridMessage msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, tos, emailInfo.TemplateId, emailInfo.TemplateData);
+            SendGridMessage msg = new();
+
+            if (!string.IsNullOrEmpty(emailInfo.TemplateId))
+            {
+                msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, tos, emailInfo.TemplateId, emailInfo.TemplateData);
+            }
+            else
+            {
+                string stringContent = emailInfo.TemplateData.Where(e => e.Key == Constants.SENDGRID_STRING_CONTENT_VARIABLE).FirstOrDefault().Value;
+                string htmlContent = emailInfo.TemplateData.Where(e => e.Key == Constants.SENDGRID_HTML_CONTENT_VARIABLE).FirstOrDefault().Value;
+
+                msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailInfo.Subject, stringContent, htmlContent);
+            }
 
             SendGridTrackingOption trackingOption = emailInfo.TrackingOption ?? new();
 

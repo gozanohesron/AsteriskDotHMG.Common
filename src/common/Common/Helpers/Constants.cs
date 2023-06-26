@@ -31,6 +31,8 @@ public static class Constants
     public const string LOGGING_ACTION_EVENT_START = "[EVENT START]";
     public const string LOGGING_ACTION_EVENT_END = "[EVENT END]";
     public const string LOGGING_ACTION_EVENT_ERROR = "[EVENT ERROR]";
+    public const string SENDGRID_HTML_CONTENT_VARIABLE = "htmlContent";
+    public const string SENDGRID_STRING_CONTENT_VARIABLE = "stringContent";
 }
 
 public static class Messages
