@@ -66,6 +66,16 @@ public static partial class FileExtensionMethods
     {
         return fileName.ToLower().EndsWith(".xml");
     }
+
+    public static bool IsPDFFile(this IFormFile file)
+    {
+        return file != null && file.ContentType == Constants.PDF_CONTENT_TYPE;
+    }
+
+    public static bool IsPDFFile(this string fileName)
+    {
+        return fileName.ToLower().EndsWith(".pdf");
+    }
 }
 
 public static partial class StringExtensionMethods

@@ -6,6 +6,7 @@ public static class Constants
     public const string JSON_CONTENT_TYPE = "application/json";
     public const string XML_CONTENT_TYPE = "application/xml";
     public const string XML_TEXT_CONTENT_TYPE = "text/xml";
+    public const string PDF_CONTENT_TYPE = "application/pdf";
 
     public const string LOGGING_ACTION_API_START = "[API START]";
     public const string LOGGING_ACTION_API_PROCESS = "[API PROCESS]";
