@@ -19,7 +19,14 @@ public class SendGridEmailService : IEmailService
     {
         try
         {
-            SendGridClient client = new(_options.ApiKey);
+            string key = _options.ApiKey;
+
+            if (!string.IsNullOrEmpty(emailInfo.ApiKey))
+            {
+                key = emailInfo.ApiKey;
+            }
+
+            SendGridClient client = new(key);
 
             string subject = emailInfo.Subject;
             EmailAddress from = new(_options.SenderEmail, _options.SenderName);

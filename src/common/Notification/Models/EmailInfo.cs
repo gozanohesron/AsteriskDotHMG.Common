@@ -34,6 +34,8 @@ public class EmailInfo
     public IDictionary<string, dynamic> TemplateData { get; set; }
 
     public SendGridTrackingOption TrackingOption { get; set; } = new();
+
+    public string ApiKey { get; set; }
 }
 
 public class SendGridTrackingOption
