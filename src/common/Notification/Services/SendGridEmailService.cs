@@ -30,6 +30,12 @@ public class SendGridEmailService : IEmailService
 
             string subject = emailInfo.Subject;
             EmailAddress from = new(_options.SenderEmail, _options.SenderName);
+
+            if (!string.IsNullOrEmpty(emailInfo.SenderName) && !string.IsNullOrEmpty(emailInfo.SenderEmail))
+            {
+                from = new(emailInfo.SenderEmail, emailInfo.SenderName);
+            }
+
             List<EmailAddress> tos = recepients.Select(e => new EmailAddress(e)).ToList();
 
             SendGridMessage msg = new();
