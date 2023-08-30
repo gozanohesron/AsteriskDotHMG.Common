@@ -28,6 +28,10 @@ public class BlobInformation
             {
                 return $"{Directory}/{FileName}";
             }
+            else  if (!string.IsNullOrEmpty(FileName))
+            {
+                return FileName;
+            }
 
             return string.Empty;
         }
