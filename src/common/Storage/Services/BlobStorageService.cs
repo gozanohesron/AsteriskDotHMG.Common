@@ -130,7 +130,7 @@ public class BlobStorageService : IBlobStorageService
     {
         try
         {
-            Stream stream = await OpenReadAsync(blobInfo, cancellationToken);
+            Stream stream = await DownloadStreamAsync(blobInfo, cancellationToken);
 
             if (stream != null)
             {
