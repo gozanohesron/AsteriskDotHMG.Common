@@ -36,4 +36,8 @@ public class BlobInformation
             return string.Empty;
         }
     }
+
+    public string ConnectionString { get; set; }
+
+    public BlobConnectionType BlobConnectionType { get; set; } = BlobConnectionType.ConnectionString;
 }

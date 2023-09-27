@@ -33,4 +33,10 @@ public static class Enums
         EndsWith,
         StartsWith
     }
+
+    public enum BlobConnectionType
+    {
+        ConnectionString,
+        SharedAccessSignature
+    }
 }

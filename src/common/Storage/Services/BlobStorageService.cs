@@ -1,4 +1,6 @@
-﻿namespace AsteriskDotHMG.Storage.Services;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace AsteriskDotHMG.Storage.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
@@ -24,13 +26,29 @@ public class BlobStorageService : IBlobStorageService
         }
     }
 
-    public async Task<Stream> OpenReadAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
+    public async Task<Stream> DownloadStreamAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
     {
         try
         {
             BlobClient blob = GetBlobClient(blobInfo);
             Stream stream = await blob.OpenReadAsync(cancellationToken: cancellationToken);
             return stream;
+        }
+        catch (Exception)
+        {
+            throw;
+        };
+    }
+
+    public async Task<byte[]> DownloadByteAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            BlobClient blob = GetBlobClient(blobInfo);
+            Stream stream = await blob.OpenReadAsync(cancellationToken: cancellationToken);
+            MemoryStream memoryStream = new();
+            stream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
         }
         catch (Exception)
         {
@@ -135,8 +153,24 @@ public class BlobStorageService : IBlobStorageService
     {
         try
         {
-            BlobServiceClient blobServiceClient = GetServiceClient();
+            BlobServiceClient blobServiceClient = null;
 
+            if (!string.IsNullOrEmpty(blobInfo.ConnectionString))
+            {
+                if (blobInfo.BlobConnectionType == BlobConnectionType.ConnectionString)
+                {
+                    blobServiceClient = GetServiceClient(blobInfo.ConnectionString);
+                }
+                else
+                {
+                    blobServiceClient = GetServiceClient(new Uri(blobInfo.ConnectionString));
+                }
+            }
+            else
+            {
+                blobServiceClient = GetServiceClient();
+            }
+            
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
 
             BlobClient blob = container.GetBlobClient(blobInfo.BlobPath);
@@ -151,6 +185,16 @@ public class BlobStorageService : IBlobStorageService
     private BlobServiceClient GetServiceClient()
     {
         return new(_storageOptions.ConnectionString);
+    }
+
+    private static BlobServiceClient GetServiceClient(string connectionString)
+    {
+        return new(connectionString);
+    }
+
+    private static BlobServiceClient GetServiceClient(Uri sasUri)
+    {
+        return new(sasUri);
     }
     #endregion Private Methods
 }
