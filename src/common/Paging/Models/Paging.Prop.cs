@@ -15,6 +15,7 @@ public class PagingProp<TModel>
     private static readonly string _date = typeof(DateOnly).FullName;
     private static readonly string _datetime = typeof(DateTime).FullName;
     private static readonly string _time = typeof(TimeOnly).FullName;
+    private static readonly string _guid = typeof(Guid).FullName;
     private static readonly string _boolNull = typeof(bool?).FullName;
     private static readonly string _decimalNull = typeof(decimal?).FullName;
     private static readonly string _intNull = typeof(int?).FullName;
@@ -27,6 +28,8 @@ public class PagingProp<TModel>
     private static readonly string _dateNull = typeof(DateOnly?).FullName;
     private static readonly string _datetimeNull = typeof(DateTime?).FullName;
     private static readonly string _timeNull = typeof(TimeOnly?).FullName;
+    private static readonly string _guidNull = typeof(Guid?).FullName;
+
     private static readonly List<string> _validTypes = new()
     {
         _bool,
@@ -42,6 +45,7 @@ public class PagingProp<TModel>
         _date,
         _datetime,
         _time,
+        _guid,
         _boolNull,
         _decimalNull,
         _intNull,
@@ -53,7 +57,8 @@ public class PagingProp<TModel>
         _doubleNull,
         _dateNull,
         _datetimeNull,
-        _timeNull
+        _timeNull,
+        _guidNull
     };
 
     public PagingProp(
@@ -185,6 +190,15 @@ public class PagingProp<TModel>
                 try
                 {
                     Type underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
+
+                    if (propertyInfo.PropertyType.FullName.Contains("Guid") || underlyingType.FullName.Contains("Guid"))
+                    {
+                        Guid guidNew = Guid.Empty;
+                        _=Guid.TryParse(value.ToString(), out guidNew);
+                        object guidValue = guidNew;
+                        return guidValue;
+                    }
+
                     object convertedValue = Convert.ChangeType(value, underlyingType ?? propertyInfo.PropertyType);
                     return convertedValue;
                 }
@@ -299,6 +313,10 @@ public class PagingProp<TModel>
             FilterOperator.LessThan,
             FilterOperator.LessThanOrEqual
         }),
+        new(_guid, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual
+        }),
         new(_boolNull, new() {
             FilterOperator.Equal
         }),
@@ -388,7 +406,11 @@ public class PagingProp<TModel>
             FilterOperator.GreaterThanOrEqual,
             FilterOperator.LessThan,
             FilterOperator.LessThanOrEqual
-        })
+        }),
+        new(_guidNull, new() {
+            FilterOperator.Equal,
+            FilterOperator.NotEqual
+        }),
     };
 
     private static void ValidateSearchFilter(List<string> filterColumns, List<object> filterValues, List<FilterProperty> filterProperties)
@@ -432,7 +454,16 @@ public class PagingProp<TModel>
                                     {
                                         Type underlyingType = Nullable.GetUnderlyingType(propertyType);
 
-                                        Convert.ChangeType(value, underlyingType ?? propertyType);
+                                        if (propertyType.FullName.Contains("Guid") || underlyingType.FullName.Contains("Guid"))
+                                        {
+                                            Guid guidNew = Guid.Empty;
+                                            _=Guid.TryParse(value.ToString(), out guidNew);
+                                            value = guidNew;
+                                        }
+                                        else
+                                        {
+                                            Convert.ChangeType(value, underlyingType ?? propertyType);
+                                        }
                                     }
                                     catch (Exception)
                                     {
@@ -626,6 +657,10 @@ public class PagingProp<TModel>
                         else if (underlyingType.FullName == _time)
                         {
                             coalescedConstant = default(TimeOnly);
+                        }
+                        else if (underlyingType.FullName == _guid)
+                        {
+                            coalescedConstant = default(Guid);
                         }
 
                         coalescedProperty = Expression.Coalesce(property, Expression.Constant(coalescedConstant));
