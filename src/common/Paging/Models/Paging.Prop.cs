@@ -1,4 +1,6 @@
-﻿namespace AsteriskDotHMG.Paging.Models;
+﻿using static AsteriskDotHMG.Common.Helpers.Enums;
+
+namespace AsteriskDotHMG.Paging.Models;
 
 public class PagingProp<TModel>
 {
@@ -61,6 +63,34 @@ public class PagingProp<TModel>
         _guidNull
     };
 
+
+    private void InitializeCommon(
+        int size,
+        int page,
+        List<string> filterColumns,
+        List<object> filterValues,
+        List<FilterProperty> filterProperties,
+        FilterCondition filterCondition,
+        string sortColumn,
+        string sortDirection,
+        string defaultSortColumn,
+        string defaultSortDirection,
+        int maxSize = 100)
+    {
+        ValidateSearchFilter(filterColumns, filterValues, filterProperties);
+
+        if (maxSize <= 0)
+        {
+            maxSize = 1;
+        }
+
+        Page = GetPage(page);
+        Size = GetPageSize(size, maxSize);
+        SortDirection = GetSortDirection(sortDirection, defaultSortDirection);
+        SortColumn = GetSortColumn(sortColumn, defaultSortColumn);
+        SearchExpression = GetSearchExpression(filterColumns, filterValues, filterProperties, filterCondition);
+    }
+
     public PagingProp(
         int size,
         int page,
@@ -75,18 +105,19 @@ public class PagingProp<TModel>
         int maxSize = 100)
     {
 
-        ValidateSearchFilter(filterColumns, filterValues, filterProperties);
+        InitializeCommon(size, page, filterColumns, filterValues, filterProperties, filterCondition, sortColumn, sortDirection, defaultSortColumn, defaultSortDirection, maxSize);
+    }
 
-        if (maxSize <= 0)
-        {
-            maxSize = 1;
-        }
-
-        Page = GetPage(page);
-        Size = GetPageSize(size, maxSize);
-        SortDirection = GetSortDirection(sortDirection, defaultSortDirection);
-        SortColumn = GetSortColumn(sortColumn, defaultSortColumn);
-        SearchExpression = GetSearchExpression(filterColumns, filterValues, filterProperties, filterCondition);
+    public PagingProp(
+        int size,
+        int page,
+        string sortColumn,
+        string sortDirection,
+        string defaultSortColumn,
+        string defaultSortDirection,
+        int maxSize = 100)
+    {
+        InitializeCommon(size, page, new(), new(), new(), FilterCondition.And, sortColumn, sortDirection, defaultSortColumn, defaultSortDirection, maxSize);
     }
 
     public int Page { get; private set; }
@@ -191,7 +222,7 @@ public class PagingProp<TModel>
                 {
                     Type underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
 
-                    if (propertyInfo.PropertyType.FullName.Contains("Guid") || underlyingType.FullName.Contains("Guid"))
+                    if (propertyInfo.PropertyType.FullName.Contains("Guid") || (underlyingType != null && underlyingType.FullName.Contains("Guid")))
                     {
                         Guid guidNew = Guid.Empty;
                         _=Guid.TryParse(value.ToString(), out guidNew);
@@ -454,7 +485,7 @@ public class PagingProp<TModel>
                                     {
                                         Type underlyingType = Nullable.GetUnderlyingType(propertyType);
 
-                                        if (propertyType.FullName.Contains("Guid") || underlyingType.FullName.Contains("Guid"))
+                                        if (propertyType.FullName.Contains("Guid") || (underlyingType != null && underlyingType.FullName.Contains("Guid")))
                                         {
                                             Guid guidNew = Guid.Empty;
                                             _=Guid.TryParse(value.ToString(), out guidNew);
