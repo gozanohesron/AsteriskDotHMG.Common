@@ -39,4 +39,10 @@ public static class Enums
         ConnectionString,
         SharedAccessSignature
     }
+
+    public enum SortDirection
+    {
+        Ascending,
+        Descending
+    }
 }

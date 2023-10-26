@@ -132,17 +132,29 @@ public class PagingProp<TModel>
 
     private static string GetSortDirection(string sortDirection, string defaultSortDirection)
     {
-        if (!string.IsNullOrEmpty(sortDirection) && (sortDirection == "asc" || sortDirection == "desc"))
+        List<string> directions = new() { "asc", "desc", "ascending", "descending" };
+
+        if (!string.IsNullOrEmpty(sortDirection))
         {
-            return sortDirection;
+            sortDirection = sortDirection.ToLower();
+        }
+     
+        if (directions.Contains(sortDirection))
+        {
+            return sortDirection == "asc" || sortDirection == "ascending" ? "Ascending" : "Descending";
         }
 
-        if (!string.IsNullOrEmpty(defaultSortDirection) && (defaultSortDirection == "asc" || defaultSortDirection == "desc"))
+        if (!string.IsNullOrEmpty(defaultSortDirection))
         {
-            return defaultSortDirection;
+            defaultSortDirection = defaultSortDirection.ToLower();
         }
 
-        return "asc";
+        if (directions.Contains(defaultSortDirection))
+        {
+            return defaultSortDirection == "asc" || defaultSortDirection == "ascending" ? "Ascending" : "Descending";
+        }
+
+        return "Ascending";
     }
 
     private static int GetPage(int page)

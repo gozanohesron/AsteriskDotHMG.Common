@@ -1,4 +1,6 @@
-﻿namespace AsteriskDotHMG.Common.Methods;
+﻿using System.Runtime.CompilerServices;
+
+namespace AsteriskDotHMG.Common.Methods;
 
 public static partial class EnumExtensionMethods
 {
@@ -187,6 +189,17 @@ public static partial class StringExtensionMethods
         }
 
         return string.Empty;
+    }
+
+    public static bool IsDescending(this string sortOrder)
+    {
+        if (!string.IsNullOrEmpty(sortOrder))
+        {
+            sortOrder = sortOrder.ToLower();
+            return sortOrder == "desc" || sortOrder == "descending";
+        }
+        
+        return false;
     }
 
     [GeneratedRegex("([A-Z])([A-Z]+|[a-z0-9]+)($|[A-Z]\\w*)")]
