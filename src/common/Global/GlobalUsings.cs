@@ -11,6 +11,7 @@ global using Azure;
 global using Azure.Storage.Blobs;
 global using Azure.Storage.Blobs.Models;
 global using Azure.Storage.Queues;
+global using Azure.Storage.Sas;
 global using FluentValidation;
 global using FluentValidation.Results;
 global using MediatR;

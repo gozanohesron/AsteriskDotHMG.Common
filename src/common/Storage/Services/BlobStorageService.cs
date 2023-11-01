@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace AsteriskDotHMG.Storage.Services;
+﻿namespace AsteriskDotHMG.Storage.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
@@ -118,7 +116,7 @@ public class BlobStorageService : IBlobStorageService
             }
 
             return true;
-            
+
         }
         catch (Exception)
         {
@@ -170,7 +168,7 @@ public class BlobStorageService : IBlobStorageService
             {
                 blobServiceClient = GetServiceClient();
             }
-            
+
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
 
             BlobClient blob = container.GetBlobClient(blobInfo.BlobPath);
@@ -195,6 +193,35 @@ public class BlobStorageService : IBlobStorageService
     private static BlobServiceClient GetServiceClient(Uri sasUri)
     {
         return new(sasUri);
+    }
+
+    public Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, int durationInMinutes, List<BlobSasPermissions> permissions)
+    {
+        try
+        {
+            BlobClient blob = GetBlobClient(blobInfo);
+
+            BlobSasBuilder sasBuilder = new()
+            {
+                BlobContainerName = blobInfo.ContainerName,
+                StartsOn = DateTimeOffset.UtcNow,
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(durationInMinutes)
+            };
+
+            foreach (BlobSasPermissions permission in permissions)
+            {
+                sasBuilder.SetPermissions(permission);
+            }
+
+            sasBuilder.Resource = "b";
+            sasBuilder.BlobName = blobInfo.BlobPath;
+
+            return blob.GenerateSasUri(sasBuilder);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
     #endregion Private Methods
 }
