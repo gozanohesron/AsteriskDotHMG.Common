@@ -40,4 +40,6 @@ public class BlobInformation
     public string ConnectionString { get; set; }
 
     public BlobConnectionType BlobConnectionType { get; set; } = BlobConnectionType.ConnectionString;
+
+    public bool ExcludeDelete { get; set; }
 }

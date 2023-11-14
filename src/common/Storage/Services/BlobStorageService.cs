@@ -61,8 +61,12 @@ public class BlobStorageService : IBlobStorageService
         try
         {
             BlobClient blob = GetBlobClient(blobInfo);
-            await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
 
+            if (!blobInfo.ExcludeDelete)
+            {
+                await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            }
+            
             if (file.Position != 0)
             {
                 file.Position = 0;
