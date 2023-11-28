@@ -66,7 +66,7 @@ public class BlobStorageService : IBlobStorageService
             {
                 await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
             }
-            
+
             if (file.Position != 0)
             {
                 file.Position = 0;
@@ -176,6 +176,7 @@ public class BlobStorageService : IBlobStorageService
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
 
             BlobClient blob = container.GetBlobClient(blobInfo.BlobPath);
+
             return blob;
         }
         catch (Exception)
@@ -221,6 +222,19 @@ public class BlobStorageService : IBlobStorageService
             sasBuilder.BlobName = blobInfo.BlobPath;
 
             return blob.GenerateSasUri(sasBuilder);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task<bool> ExistsAsync(BlobInformation blobInfo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            BlobClient blob = GetBlobClient(blobInfo);
+            return await blob.ExistsAsync(cancellationToken);
         }
         catch (Exception)
         {

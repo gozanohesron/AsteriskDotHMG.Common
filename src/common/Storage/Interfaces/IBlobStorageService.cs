@@ -14,4 +14,5 @@ public interface IBlobStorageService
     Task<bool> DeleteFileAsync(SM.BlobInformation blobInfo, bool skipIfNotExists = false, CancellationToken cancellationToken = default);
     Task<string> GetBase64Data(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
     Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, int durationInMinutes, List<BlobSasPermissions> permissions);
+    Task<bool> ExistsAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
 }
