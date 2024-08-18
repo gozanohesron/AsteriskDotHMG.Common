@@ -78,4 +78,11 @@ public static partial class StaticMethods
 
         return passwordBuilder.ToString();
     }
+
+    public static List<string> GetPropertyNames<T>()
+    {
+        return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Select(prop => prop.Name)
+                        .ToList();
+    }
 }
