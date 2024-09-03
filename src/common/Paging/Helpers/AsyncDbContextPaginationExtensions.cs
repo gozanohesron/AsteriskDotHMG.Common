@@ -3,126 +3,125 @@
 public static partial class PaginationExtensions
 {
     //*** DbContext source
-    public static async Task<Pagination<TSource>> AsPaginationAsync<TSource>(this DbContext source, int page, int limit, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TSource>> AsPaginationAsync<TSource>(this DbContext source, int page, int limit, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
-        var totalItems = await source.Set<TSource>().CountAsync().ConfigureAwait(false);
+        var totalItems = await source.Set<TSource>().CountAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(sortColumn))
         {
             if (orderByDescending)
             {
                 var resultsDesc = source.Set<TSource>().OrderByDescending(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new Pagination<TSource>(await resultsDesc.ToListAsync().ConfigureAwait(false), totalItems, page, limit);
+                return new Pagination<TSource>(await resultsDesc.ToListAsync(cancellationToken).ConfigureAwait(false), totalItems, page, limit);
             }
             else
             {
                 var resultsAsc = source.Set<TSource>().OrderBy(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new Pagination<TSource>(await resultsAsc.ToListAsync().ConfigureAwait(false), totalItems, page, limit);
+                return new Pagination<TSource>(await resultsAsc.ToListAsync(cancellationToken).ConfigureAwait(false), totalItems, page, limit);
             }
         }
         var results = source.Set<TSource>().Skip((page - 1) * limit).Take(limit);
 
-        return new Pagination<TSource>(await results.ToListAsync().ConfigureAwait(false), totalItems, page, limit);
+        return new Pagination<TSource>(await results.ToListAsync(cancellationToken).ConfigureAwait(false), totalItems, page, limit);
     }
 
-    public static async Task<Pagination<TSource>> AsPaginationAsync<TSource>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TSource>> AsPaginationAsync<TSource>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
-        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync().ConfigureAwait(false);
+        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync(cancellationToken).ConfigureAwait(false);
         var results = Enumerable.Empty<TSource>();
         if (!string.IsNullOrEmpty(sortColumn))
         {
-            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
         return new Pagination<TSource>(results, totalItems, page, limit);
     }
 
     // PaginationAuto Mapping
-    public static async Task<PaginationAuto<TSource, Tdestination>> AsPaginationAsync<TSource, Tdestination>(this DbContext dbContext, int page, int limit, Func<TSource, Tdestination> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TDestination>> AsPaginationAsync<TSource, TDestination>(this DbContext dbContext, int page, int limit, Func<TSource, TDestination> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
-        var totalItems = await dbContext.Set<TSource>().CountAsync().ConfigureAwait(false);
+        var totalItems = await dbContext.Set<TSource>().CountAsync(cancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(sortColumn))
         {
             if (orderByDescending)
             {
-                var resultsDesc = dbContext.Set<TSource>().OrderByDescending(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new PaginationAuto<TSource, Tdestination>(await resultsDesc.ToListAsync().ConfigureAwait(false), totalItems, convertTsourceToTdestinationMethod, page, limit);
+                var resultsDesc = await dbContext.Set<TSource>().OrderByDescending(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
+                return Pagination<TSource>.GetPagination(resultsDesc, totalItems, convertTSourceToTDestinationMethod, page, limit);
             }
             else
             {
-                var resultsAsc = dbContext.Set<TSource>().OrderBy(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new PaginationAuto<TSource, Tdestination>(await resultsAsc.ToListAsync().ConfigureAwait(false), totalItems, convertTsourceToTdestinationMethod, page, limit);
+                var resultsAsc = await dbContext.Set<TSource>().OrderBy(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
+                return Pagination<TSource>.GetPagination<TSource, TDestination>(resultsAsc, totalItems, convertTSourceToTDestinationMethod, page, limit);
             }
         }
-        var results = dbContext.Set<TSource>().Skip((page - 1) * limit).Take(limit);
-
-        return new PaginationAuto<TSource, Tdestination>(await results.ToListAsync().ConfigureAwait(false), totalItems, convertTsourceToTdestinationMethod, page, limit);
+        var results = await dbContext.Set<TSource>().Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
+        return Pagination<TSource>.GetPagination(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 
-    public static async Task<PaginationAuto<TSource, Tdestination>> AsPaginationAsync<TSource, Tdestination>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, Func<TSource, Tdestination> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TDestination>> AsPaginationAsync<TSource, TDestination>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, Func<TSource, TDestination> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
-        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync().ConfigureAwait(false);
+        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync(cancellationToken).ConfigureAwait(false);
         var results = Enumerable.Empty<TSource>();
         if (!string.IsNullOrEmpty(sortColumn))
         {
-            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
-        return new PaginationAuto<TSource, Tdestination>(results, totalItems, convertTsourceToTdestinationMethod, page, limit);
+        return Pagination<TSource>.GetPagination(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 
     // PaginationAuto Async Mapping
-    public static async Task<PaginationAuto<TSource, Tdestination>> AsPaginationAsync<TSource, Tdestination>(this DbContext dbContext, int page, int limit, Task<Func<TSource, Tdestination>> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TDestination>> AsPaginationAsync<TSource, TDestination>(this DbContext dbContext, int page, int limit, Func<TSource, Task<TDestination>> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
+        var totalItems = await dbContext.Set<TSource>().CountAsync(cancellationToken).ConfigureAwait(false);
 
-        var totalItems = await dbContext.Set<TSource>().CountAsync().ConfigureAwait(false);
         if (!string.IsNullOrEmpty(sortColumn))
         {
             if (orderByDescending)
             {
-                var resultsDesc = dbContext.Set<TSource>().OrderByDescending(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new PaginationAuto<TSource, Tdestination>(await resultsDesc.ToListAsync().ConfigureAwait(false), totalItems, await convertTsourceToTdestinationMethod, page, limit);
+                var resultsDesc = await dbContext.Set<TSource>().OrderByDescending(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
+                return await Pagination<TSource>.GetPaginationAsync(resultsDesc, totalItems, convertTSourceToTDestinationMethod, page, limit);
             }
             else
             {
-                var resultsAsc = dbContext.Set<TSource>().OrderBy(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit);
-                return new PaginationAuto<TSource, Tdestination>(await resultsAsc.ToListAsync().ConfigureAwait(false), totalItems, await convertTsourceToTdestinationMethod, page, limit);
+                var resultsAsc = await dbContext.Set<TSource>().OrderBy(p => EF.Property<object>(p, sortColumn)).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
+                return await Pagination<TSource>.GetPaginationAsync(resultsAsc, totalItems, convertTSourceToTDestinationMethod, page, limit);
             }
         }
-        var results = dbContext.Set<TSource>().Skip((page - 1) * limit).Take(limit);
+        var results = await dbContext.Set<TSource>().Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        return new PaginationAuto<TSource, Tdestination>(await results.ToListAsync().ConfigureAwait(false), totalItems, await convertTsourceToTdestinationMethod, page, limit);
+        return await Pagination<TSource>.GetPaginationAsync(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 
-    public static async Task<PaginationAuto<TSource, Tdestination>> AsPaginationAsync<TSource, Tdestination>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, Task<Func<TSource, Tdestination>> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false) where TSource : class
+    public static async Task<Pagination<TDestination>> AsPaginationAsync<TSource, TDestination>(this DbContext dbContext, int page, int limit, Expression<Func<TSource, bool>> expression, Func<TSource, Task<TDestination>> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false, CancellationToken cancellationToken = default(CancellationToken)) where TSource : class
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
-        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync().ConfigureAwait(false);
+        var totalItems = await dbContext.Set<TSource>().Where(expression).CountAsync(cancellationToken).ConfigureAwait(false);
         var results = Enumerable.Empty<TSource>();
         if (!string.IsNullOrEmpty(sortColumn))
         {
-            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await (orderByDescending ? dbContext.Set<TSource>().Where(expression).OrderByDescending(p => EF.Property<object>(p, sortColumn)) : dbContext.Set<TSource>().Where(expression).OrderBy(p => EF.Property<object>(p, sortColumn))).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync().ConfigureAwait(false);
+            results = await dbContext.Set<TSource>().Where(expression).Skip((page - 1) * limit).Take(limit).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
-        return new PaginationAuto<TSource, Tdestination>(results, totalItems, await convertTsourceToTdestinationMethod, page, limit);
+        return await Pagination<TSource>.GetPaginationAsync(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 }

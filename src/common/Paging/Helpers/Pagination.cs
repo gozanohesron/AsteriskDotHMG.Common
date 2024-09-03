@@ -2,6 +2,22 @@
 
 public class Pagination<T>
 {
+    public Pagination()
+    {
+        Results = new List<T>();
+        CurrentPage = 1;
+    }
+
+    public Pagination(Pagination<T> pagination)
+    {
+        TotalItems = pagination.TotalPages;
+        CurrentPage = pagination.CurrentPage;
+        NextPage = pagination.NextPage;
+        PreviousPage = pagination.PreviousPage;
+        TotalPages = pagination.TotalPages;
+        Results = pagination.Results;
+    }
+
     public Pagination(IEnumerable<T> results, long totalItems, int page = 1, int limit = 10, bool applyPageAndLimitToResults = false)
     {
         if (limit <= 0)
@@ -50,10 +66,27 @@ public class Pagination<T>
         }       
     }
 
-    public long TotalItems { get; private set; }
-    public int CurrentPage { get; private set; }
-    public int? NextPage { get; private set; }
-    public int? PreviousPage { get; private set; }
-    public int TotalPages { get; private set; }
-    public IEnumerable<T> Results { get; private set; }
+    public static Pagination<TDestination> GetPagination<TSource, TDestination>(IEnumerable<TSource> results, long totalItems, Func<TSource, TDestination> convertTSourceToTDestinationMethod, int page = 1, int limit = 10, bool applyPageAndLimitToResults = false)
+    {
+        var destinationResults = results?.Select(x => convertTSourceToTDestinationMethod(x)) ?? new List<TDestination>();
+        return new Pagination<TDestination>(destinationResults, totalItems, page, limit, applyPageAndLimitToResults);
+    }
+
+    public static async Task<Pagination<TDestination>> GetPaginationAsync<TSource, TDestination>(IEnumerable<TSource> results, long totalItems, Func<TSource, Task<TDestination>> convertTSourceToTDestinationMethod, int page = 1, int limit = 10, bool applyPageAndLimitToResults = false)
+    {
+        if (results == null)
+        {
+            return new Pagination<TDestination>(new List<TDestination>(), totalItems, page, limit, applyPageAndLimitToResults);
+        }
+        var destinationResults = await results.Select(async ev => await convertTSourceToTDestinationMethod(ev)).WhenAll().ConfigureAwait(false);
+        return new Pagination<TDestination>(destinationResults, totalItems, page, limit, applyPageAndLimitToResults);
+    }
+
+    public long TotalItems { get; set; }
+    public int CurrentPage { get; set; }
+    public int? NextPage { get; set; }
+    public int? PreviousPage { get; set; }
+    public int TotalPages { get; set; }
+    public IEnumerable<T> Results { get; set; }
+
 }

@@ -34,7 +34,7 @@ public static partial class PaginationExtensions
         return new Pagination<TSource>(results, totalItems, page, limit);
     }
 
-    public static PaginationAuto<TSource, Tdestination> AsPagination<TSource, Tdestination>(this IQueryable<TSource> source, int page, int limit, Func<TSource, Tdestination> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false)
+    public static Pagination<TDestination> AsPagination<TSource, TDestination>(this IQueryable<TSource> source, int page, int limit, Func<TSource, TDestination> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false)
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
@@ -46,10 +46,10 @@ public static partial class PaginationExtensions
 
         var results = source.Skip((page - 1) * limit).Take(limit);
 
-        return new PaginationAuto<TSource, Tdestination>(results, totalItems, convertTsourceToTdestinationMethod, page, limit);
+        return Pagination<TSource>.GetPagination(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 
-    public static PaginationAuto<TSource, Tdestination> AsPagination<TSource, Tdestination>(this IQueryable<TSource> source, int page, int limit, Expression<Func<TSource, bool>> expression, Func<TSource, Tdestination> convertTsourceToTdestinationMethod, string sortColumn = "", bool orderByDescending = false)
+    public static Pagination<TDestination> AsPagination<TSource, TDestination>(this IQueryable<TSource> source, int page, int limit, Expression<Func<TSource, bool>> expression, Func<TSource, TDestination> convertTSourceToTDestinationMethod, string sortColumn = "", bool orderByDescending = false)
     {
         PaginationExtensionsHelper.ValidateInputs(page, limit);
 
@@ -63,6 +63,6 @@ public static partial class PaginationExtensions
         {
             results = source.Where(expression).Skip((page - 1) * limit).Take(limit);
         }
-        return new PaginationAuto<TSource, Tdestination>(results, totalItems, convertTsourceToTdestinationMethod, page, limit);
+        return Pagination<TSource>.GetPagination(results, totalItems, convertTSourceToTDestinationMethod, page, limit);
     }
 }
