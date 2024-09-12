@@ -7,22 +7,26 @@ public class EmailInfo: SendGridOptions
 
     }
 
-    public EmailInfo(string subject, string templateId, string preHeader, IDictionary<string, dynamic> templateData, SendGridTrackingOption trackingOption)
+    public EmailInfo(string subject, string templateId, string preHeader, IDictionary<string, dynamic> templateData, SendGridTrackingOption trackingOption, List<SendGridAttachment> attachments)
     {
         Subject = subject;
         TemplateId = templateId;
         PreHeader = preHeader;
         TemplateData = templateData;
         TrackingOption = trackingOption;
+        Attachments = attachments;
+    }
+
+    public EmailInfo(string subject, string templateId, string preHeader, IDictionary<string, dynamic> templateData, SendGridTrackingOption trackingOption)
+        :this(subject, templateId, preHeader, templateData, trackingOption, new())
+    {
+        
     }
 
     public EmailInfo(string subject, string templateId, string preHeader, IDictionary<string, dynamic> templateData)
+        :this(subject, templateId, preHeader, templateData, new())
     {
-        Subject = subject;
-        TemplateId = templateId;
-        PreHeader = preHeader;
-        TemplateData = templateData;
-        TrackingOption = new();
+        
     }
 
     public string Subject { get; set; }
@@ -34,6 +38,8 @@ public class EmailInfo: SendGridOptions
     public IDictionary<string, dynamic> TemplateData { get; set; }
 
     public SendGridTrackingOption TrackingOption { get; set; } = new();
+
+    public List<SendGridAttachment> Attachments { get; set; } = new();
 }
 
 public class SendGridTrackingOption
@@ -58,4 +64,8 @@ public class SendGridTrackingOption
     public bool AllowGoogleAnalytics { get; set; }
 
     public bool AllowSubscription { get; set; }
+}
+
+public class SendGridAttachment: Attachment
+{
 }

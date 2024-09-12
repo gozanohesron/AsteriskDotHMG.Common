@@ -52,6 +52,11 @@ public class SendGridEmailService : IEmailService
                 msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, tos, emailInfo.Subject, stringContent, htmlContent);
             }
 
+            if (emailInfo.Attachments != null && emailInfo.Attachments.Count > 0)
+            {
+                msg.AddAttachments(emailInfo.Attachments);
+            }
+
             SendGridTrackingOption trackingOption = emailInfo.TrackingOption ?? new();
 
             msg.SetClickTracking(trackingOption.AllowClick, trackingOption.AllowClick);
