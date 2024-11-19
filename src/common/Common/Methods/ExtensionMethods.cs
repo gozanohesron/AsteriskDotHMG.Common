@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Data;
 
 namespace AsteriskDotHMG.Common.Methods;
 
@@ -198,7 +198,7 @@ public static partial class StringExtensionMethods
             sortOrder = sortOrder.ToLower();
             return sortOrder == "desc" || sortOrder == "descending";
         }
-        
+
         return false;
     }
 
@@ -426,6 +426,65 @@ public static partial class CollectionExtensionMethods
         }
 
         return query.Where(Expression.Lambda<Func<T, bool>>(expression, parameter));
+    }
+
+    public static List<T> ToList<T>(this DataTable dataTable) where T : new()
+    {
+        List<T> objects = new();
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            // Dynamically create an instance of T
+            T obj = Activator.CreateInstance<T>();
+            Type objType = typeof(T);
+
+            foreach (PropertyInfo property in objType.GetProperties())
+            {
+                if (dataTable.Columns.Contains(property.Name))
+                {
+                    object value = row[property.Name];
+
+                    if (value != DBNull.Value)
+                    {
+                        // Handle DateOnly type
+                        if (property.PropertyType == typeof(DateOnly))
+                        {
+                            // Convert DateTime to DateOnly
+                            DateTime dateTimeValue = (DateTime)value;
+                            property.SetValue(obj, DateOnly.FromDateTime(dateTimeValue));
+                        }
+                        else if (property.PropertyType.IsEnum)
+                        {
+                            property.SetValue(obj, Enum.Parse(property.PropertyType, value.ToString()));
+                        }
+                        else if (property.PropertyType == typeof(Guid))
+                        {
+                            property.SetValue(obj, Guid.Parse(value.ToString()));
+                        }
+                        else if (property.PropertyType == typeof(bool))
+                        {
+                            property.SetValue(obj, Convert.ToBoolean(value));
+                        }
+                        else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        {
+                            // Nullable types handling
+                            Type nullableType = Nullable.GetUnderlyingType(property.PropertyType);
+                            object safeValue = (value == null) ? null : Convert.ChangeType(value, nullableType);
+                            property.SetValue(obj, safeValue);
+                        }
+                        else
+                        {
+                            // Default case for other types
+                            property.SetValue(obj, Convert.ChangeType(value, property.PropertyType));
+                        }
+                    }
+                }
+            }
+
+            objects.Add(obj);
+        }
+
+        return objects;
     }
 }
 
