@@ -1,7 +1,4 @@
-﻿using Azure.Storage.Sas;
-using System.Threading.Tasks;
-
-namespace AsteriskDotHMG.Storage.Interfaces;
+﻿namespace AsteriskDotHMG.Storage.Interfaces;
 
 public interface IBlobStorageService
 {
@@ -15,4 +12,5 @@ public interface IBlobStorageService
     Task<string> GetBase64Data(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
     Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, int durationInMinutes, List<BlobSasPermissions> permissions);
     Task<bool> ExistsAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
+    Task<bool> DeleteDirectoryAsync(SM.BlobDirectoryInformation blobDirectoryInfo, CancellationToken cancellationToken = default);
 }

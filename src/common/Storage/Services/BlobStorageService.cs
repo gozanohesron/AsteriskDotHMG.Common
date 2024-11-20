@@ -1,4 +1,6 @@
-﻿namespace AsteriskDotHMG.Storage.Services;
+﻿using Azure.Storage.Blobs.Models;
+
+namespace AsteriskDotHMG.Storage.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
@@ -119,7 +121,7 @@ public class BlobStorageService : IBlobStorageService
                 return await DeleteFileAsync(blobInfo, cancellationToken);
             }
 
-            return true;
+            return skipIfNotExists;
 
         }
         catch (Exception)
@@ -151,10 +153,17 @@ public class BlobStorageService : IBlobStorageService
     }
 
     #region Private Methods
-    private BlobClient GetBlobClient(SM.BlobInformation blobInfo)
+    private BlobContainerClient GetContainerClient(string connectionString, BlobConnectionType connectionType, string containerName)
     {
         try
         {
+            SM.BlobInformation blobInfo = new()
+            {
+                ConnectionString = connectionString,
+                BlobConnectionType = connectionType,
+                ContainerName = containerName
+            };
+
             BlobServiceClient blobServiceClient = null;
 
             if (!string.IsNullOrEmpty(blobInfo.ConnectionString))
@@ -174,6 +183,20 @@ public class BlobStorageService : IBlobStorageService
             }
 
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(blobInfo.ContainerName);
+            return container;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+
+    private BlobClient GetBlobClient(SM.BlobInformation blobInfo)
+    {
+        try
+        {
+            BlobContainerClient container = GetContainerClient(blobInfo.ConnectionString, blobInfo.BlobConnectionType, blobInfo.ContainerName);
 
             BlobClient blob = container.GetBlobClient(blobInfo.BlobPath);
 
@@ -235,6 +258,29 @@ public class BlobStorageService : IBlobStorageService
         {
             BlobClient blob = GetBlobClient(blobInfo);
             return await blob.ExistsAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteDirectoryAsync(BlobDirectoryInformation blobDirectoryInfo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            BlobContainerClient containerClient = GetContainerClient(blobDirectoryInfo.ConnectionString, blobDirectoryInfo.BlobConnectionType, blobDirectoryInfo.ContainerName);
+
+            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: blobDirectoryInfo.Directory, cancellationToken: cancellationToken))
+            {
+                // Create a BlobClient for each blob
+                BlobClient blobClient = containerClient.GetBlobClient(blobItem.Name);
+
+                // Delete the blob
+                await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            }
+
+            return true;
         }
         catch (Exception)
         {
