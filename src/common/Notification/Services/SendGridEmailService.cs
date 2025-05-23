@@ -10,12 +10,12 @@ public class SendGridEmailService : IEmailService
         _options = options.Value;
     }
 
-    public Task<bool> SendEmailAsync(EmailInfo emailInfo, string recepient, CancellationToken cancellationToken = default)
+    public Task<SendGridResponse> SendEmailAsync(EmailInfo emailInfo, string recepient, CancellationToken cancellationToken = default)
     {
         return SendEmailAsync(emailInfo, new List<string> { recepient }, cancellationToken);
     }
 
-    public async Task<bool> SendEmailAsync(EmailInfo emailInfo, List<string> recepients, CancellationToken cancellationToken = default)
+    public async Task<SendGridResponse> SendEmailAsync(EmailInfo emailInfo, List<string> recepients, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -64,8 +64,17 @@ public class SendGridEmailService : IEmailService
             msg.SetGoogleAnalytics(trackingOption.AllowGoogleAnalytics);
             msg.SetSubscriptionTracking(trackingOption.AllowSubscription);
 
+            if (emailInfo.CustomArgs != null && emailInfo.CustomArgs.Count > 0)
+            {
+                foreach (KeyValuePair<string, string> pair in emailInfo.CustomArgs)
+                {
+                    msg.AddCustomArg(pair.Key, pair.Value);
+                }
+            }
+
             SendGrid.Response response = await client.SendEmailAsync(msg, cancellationToken);
-            return response.IsSuccessStatusCode;
+            return new(response);
+            
         }
         catch (Exception)
         {
