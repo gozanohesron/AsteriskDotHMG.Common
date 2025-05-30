@@ -41,12 +41,44 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                     object value = property.GetValue(request);
                     bool willHideValue = false;
 
-                    List<string> excludedProperties = new() { "password", "newpassword", "confirmpassword", "oldpassword" };
+                    List<string> excludedProperties = new()
+                    {
+                        // Common passwords
+                        "password", "newpassword", "confirmpassword", "oldpassword", "pwd",
 
-                    if (excludedProperties.Contains(property.Name.ToLower()))
+                        // Personal identifiers
+                        "lastname", "firstname", "middlename", "fullname", "nickname", "username", "user", "name",
+    
+                        // Email
+                        "email", "emailaddress", "emailaddr", "emaiadd", "e_mail",
+
+                        // Phone/Mobile
+                        "mobile", "mobilenum", "mobilenumber", "phone", "phonenum", "phonenumber", "contact", "contactnumber",
+
+                        // User identity
+                        "requestor", "identifier", "idnumber", "id", "userid", "user_id",
+
+                        // Location-based
+                        "address", "homeaddress", "workaddress", "residentialaddress", "location", "coordinates",
+
+                        // Auth and tokens
+                        "token", "accesstoken", "refreshtoken", "keytoken", "authtoken", "apikey", "authkey", "secret", "privatekey",
+
+                        // Banking/payment
+                        "creditcard", "cardnumber", "cvv", "cvc", "bankaccount", "iban", "swift", "routingnumber",
+
+                        // Government-issued
+                        "ssn", "socialsecuritynumber", "passport", "driverlicense", "nationalid",
+
+                        // One-time PIN / Verification
+                        "otp", "one_time_pin", "onetimepin", "oneTimePin", "pin", "verificationcode", "verification_code", "authcode", "auth_code", "securitycode", "security_code", "accesscode",
+
+                    };
+
+
+                    if (excludedProperties.Any(p => property.Name.ToLower().Contains(p)))
                     {
                         value = "<Sensitive information hidden>";
-
                     }
                     else
                     {
