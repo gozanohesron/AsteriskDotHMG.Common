@@ -50,7 +50,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                         "lastname", "firstname", "middlename", "fullname", "nickname", "username", "user", "name",
     
                         // Email
-                        "email", "emailaddress", "emailaddr", "emaiadd", "e_mail",
+                        "email", "emailaddress", "emailaddr", "emailadd", "e_mail",
 
                         // Phone/Mobile
                         "mobile", "mobilenum", "mobilenumber", "phone", "phonenum", "phonenumber", "contact", "contactnumber",
@@ -71,7 +71,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                         "ssn", "socialsecuritynumber", "passport", "driverlicense", "nationalid",
 
                         // One-time PIN / Verification
-                        "otp", "one_time_pin", "onetimepin", "oneTimePin", "pin", "verificationcode", "verification_code", "authcode", "auth_code", "securitycode", "security_code", "accesscode",
+                        "otp", "one_time_pin", "onetimepin", "oneTimePin", "pin", "verificationcode", "verification_code", "authcode", "auth_code", "securitycode", "security_code", "accesscode", "registrationcode", "activationcode",
 
                     };
 
