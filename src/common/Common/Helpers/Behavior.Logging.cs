@@ -59,7 +59,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                         "requestor", "identifier", "idnumber", "id", "userid", "user_id",
 
                         // Location-based
-                        "address", "homeaddress", "workaddress", "residentialaddress", "location", "coordinates",
+                        "address", "homeaddress", "workaddress", "residentialaddress", "location",
 
                         // Auth and tokens
                         "token", "accesstoken", "refreshtoken", "keytoken", "authtoken", "apikey", "authkey", "secret", "privatekey",
@@ -72,11 +72,10 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
                         // One-time PIN / Verification
                         "otp", "one_time_pin", "onetimepin", "oneTimePin", "pin", "verificationcode", "verification_code", "authcode", "auth_code", "securitycode", "security_code", "accesscode", "registrationcode", "activationcode",
-
                     };
 
 
-                    if (excludedProperties.Any(p => property.Name.ToLower().Contains(p)))
+                    if (excludedProperties.Any(p => property.Name.ToLower() == p.ToLower()))
                     {
                         value = "<Sensitive information hidden>";
                     }
