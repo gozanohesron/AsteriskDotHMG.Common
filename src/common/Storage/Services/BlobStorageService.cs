@@ -221,6 +221,19 @@ public class BlobStorageService : IBlobStorageService
         return new(sasUri);
     }
 
+    public Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, BlobSasBuilder sasBuilder)
+    {
+        try
+        {
+            BlobClient blob = GetBlobClient(blobInfo);
+            return blob.GenerateSasUri(sasBuilder);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     public Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, int durationInMinutes, List<BlobSasPermissions> permissions)
     {
         try
@@ -242,7 +255,7 @@ public class BlobStorageService : IBlobStorageService
             sasBuilder.Resource = "b";
             sasBuilder.BlobName = blobInfo.BlobPath;
 
-            return blob.GenerateSasUri(sasBuilder);
+            return GenerateBlobSharedAccessToken(blobInfo, sasBuilder);
         }
         catch (Exception)
         {
