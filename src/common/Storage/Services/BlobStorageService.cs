@@ -1,4 +1,6 @@
-﻿namespace AsteriskDotHMG.Storage.Services;
+﻿using System.Threading;
+
+namespace AsteriskDotHMG.Storage.Services;
 
 public class BlobStorageService : IBlobStorageService
 {
@@ -143,6 +145,24 @@ public class BlobStorageService : IBlobStorageService
             }
 
             return string.Empty;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task CopyAsync(SM.BlobInformation sourceInfo, SM.BlobInformation targetInfo, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            BlobClient srcBlob = GetBlobClient(sourceInfo);
+            BlobClient destBlob = GetBlobClient(targetInfo);
+
+            if (await srcBlob.ExistsAsync(cancellationToken))
+            {
+                await destBlob.StartCopyFromUriAsync(srcBlob.Uri, cancellationToken: cancellationToken);
+            }
         }
         catch (Exception)
         {

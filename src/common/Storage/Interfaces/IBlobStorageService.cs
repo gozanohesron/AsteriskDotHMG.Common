@@ -14,4 +14,6 @@ public interface IBlobStorageService
     Uri GenerateBlobSharedAccessToken(BlobInformation blobInfo, BlobSasBuilder sasBuilder);
     Task<bool> ExistsAsync(SM.BlobInformation blobInfo, CancellationToken cancellationToken = default);
     Task<bool> DeleteDirectoryAsync(SM.BlobDirectoryInformation blobDirectoryInfo, CancellationToken cancellationToken = default);
+    Task CopyAsync(SM.BlobInformation sourceInfo, SM.BlobInformation targetInfo, CancellationToken cancellationToken = default);
+
 }
