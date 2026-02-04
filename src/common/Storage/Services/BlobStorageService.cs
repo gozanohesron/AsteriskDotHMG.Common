@@ -263,7 +263,7 @@ public class BlobStorageService : IBlobStorageService
             BlobSasBuilder sasBuilder = new()
             {
                 BlobContainerName = blobInfo.ContainerName,
-                StartsOn = DateTimeOffset.UtcNow,
+                StartsOn = DateTimeOffset.UtcNow.AddMinutes(-10),
                 ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(durationInMinutes)
             };
 
